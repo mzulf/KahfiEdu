@@ -1,5 +1,5 @@
 const { isAdmin } = require('../helpers/validationRole');
-const { Class, Course, User, Category, Role, Assignment, ClassEnrollment, Child } = require('../models')
+const { Class, Course, User, Category, Role, Assignment, ClassEnrollment, Child, Lesson } = require('../models')
 const validateClassData = require('../utils/validateClassData')
 const { getPagination } = require('../utils/paginationUtil');
 const { createSearchWhereClause } = require('../helpers/searchQueryHelper');
@@ -182,7 +182,20 @@ const getClassById = async (req, res) => {
                             attributes: ['id', 'name']
                         }
                     ],
-                }
+                },
+                {
+                    model: Lesson,
+                    as: 'lessons',
+                    paranoid: false,
+                    include: [
+                        {
+                            model: Class,
+                            as: 'class',
+                            attributes: ['id', 'name']
+                        }
+                    ],
+                },
+
             ],
             paranoid: false
         });

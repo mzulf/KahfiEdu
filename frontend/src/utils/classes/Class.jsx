@@ -44,6 +44,21 @@ export default class Class {
             deletedAt: assignment.deletedAt ? new Date(assignment.deletedAt) : null,
             class: assignment.class ? new Class(assignment.class) : null
         })) : [];
+        this.lessons = data.lessons ? data.lessons.map(lesson => ({
+            id: lesson.id,
+            title: lesson.title,
+            content: lesson.content,
+            videoUrl: lesson.videoUrl,
+            order: lesson.order,
+            code: lesson.code,
+            createdAt: new Date(lesson.createdAt),
+            updatedAt: new Date(lesson.updatedAt),
+            deletedAt: lesson.deletedAt ? new Date(lesson.deletedAt) : null,
+            class: lesson.class ? {
+                id: lesson.class.id,
+                name: lesson.class.name
+            } : null
+        })) : [];
     }
 
     get formattedStart() {

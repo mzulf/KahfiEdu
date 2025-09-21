@@ -9,6 +9,7 @@ import AksiCard from '../../../components/Admin/class/detail/AksiCard';
 import EnrollmentTable from '../../../components/Admin/class/detail/EnrollmentTable';
 import { Grid, Typography } from "@mui/material";
 import AssigmentTable from "../../../components/Admin/class/detail/AssigmentTable";
+import LessonTable from "../../../components/Admin/class/detail/LessonTable";
 
 
 export default function ClassDetail() {
@@ -16,6 +17,7 @@ export default function ClassDetail() {
     const [searchParams] = useSearchParams();
     const [enrollments, setEnrollments] = useState([]);
     const [assignments, setAssignments] = useState([]);
+    const [lessons, setLessons] = useState([]);
     const classId = searchParams.get('classId')
     const navigate = useNavigate()
     const { showAlert } = useAlert();
@@ -33,6 +35,7 @@ export default function ClassDetail() {
                 setClassData(res.class);
                 setEnrollments(res.class.class_enrollments);
                 setAssignments(res.class.assignments);
+                setLessons(res.class.lessons);
                 console.log(res.class);
             }
         } catch (error) {
@@ -64,6 +67,15 @@ export default function ClassDetail() {
                 </Grid>
                 <Grid size={{ xs: 12, md: 9 }}>
                     <EnrollmentTable enrollments={enrollments} navigate={navigate} />
+                    <LessonTable
+                        classId={classData.id}
+                        className={classData.name}
+                        lessons={lessons}
+                        showAlert={showAlert}
+                        onSuccess={() => {
+                            fetchClass();
+                        }}
+                    />
                     <AssigmentTable
                         classId={classData.id}
                         className={classData.name}
@@ -73,6 +85,7 @@ export default function ClassDetail() {
                             fetchClass();
                         }}
                     />
+
                 </Grid>
             </Grid>
         </>

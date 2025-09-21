@@ -111,6 +111,16 @@ const createAttendance = async (req, res) => {
             userId: userId
         });
 
+        // Update progress kelas hanya jika userRole adalah teacher
+        if (req.userRole === 'teacher') {
+            const kelas = await Class.findByPk(newAttendance.classId);
+            if (kelas) {
+                await kelas.update({ progress: (kelas.progress || 0) + 1 });
+            }
+        }
+
+
+
         return res.status(201).json({
             success: true,
             message: "Berhasil membuat absensi",

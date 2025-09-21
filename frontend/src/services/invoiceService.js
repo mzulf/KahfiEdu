@@ -27,7 +27,7 @@ const invoiceService = {
             throw new Error(error.response?.data?.message || 'Failed to fetch methods');
         }
     },
-    getPayments: async ({ page, limit, status, userId, classId }) => {
+    getPayments: async ({ page, limit, status, search, userId, classId }) => {
         try {
             const response = await axiosInstance.get(`/payments`,
                 {
@@ -35,8 +35,9 @@ const invoiceService = {
                         page,
                         limit,
                         status,
-                        userId,
                         classId,
+                        userId,
+                        search
                     }
                 }
             );
@@ -59,26 +60,12 @@ const invoiceService = {
             throw new Error(error.response?.data?.message || 'Failed to fetch payments');
         }
     },
-    updatePayment: async (id, data, thumbnailFile) => {
+    updatePayment: async (id, status) => {
         try {
-            const formData = new FormData();
 
-            Object.entries(data).forEach(([key, value]) => {
-                if (
-                    value === null ||
-                    value === undefined ||
-                    value === ""
-                ) {
-                    return;
-                }
-                formData.append(key, String(value));
+            const response = await axiosInstance.put(`/payment/${id}`, {
+                status
             });
-
-            if (thumbnailFile) {
-                formData.append("thumbnail", thumbnailFile);
-            }
-
-            const response = await axiosInstance.put(`/payment/${id}`, formData);
 
             return response.data
         } catch (error) {

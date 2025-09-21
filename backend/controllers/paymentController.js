@@ -1,10 +1,11 @@
-const { Payment, User, Class, Child, ClassEnrollment, Course } = require('../models');
+const { Payment, User, Class, Child, ClassEnrollment, Course, EnrollmentPayment } = require('../models');
 const { isAdmin } = require('../helpers/validationRole');
 const { AppError, handleError } = require('../helpers/helperFunction');
 const validatePaymentData = require('../utils/validatePaymentData');
 const getFileUrl = require('../utils/getFileUrl');
 const { getPagination } = require('../utils/paginationUtil');
 const { createSearchWhereClause } = require('../helpers/searchQueryHelper');
+const { where, Sequelize } = require('sequelize');
 
 const createPayment = async (req, res) => {
     try {
@@ -19,7 +20,7 @@ const createPayment = async (req, res) => {
 
         const { data } = validationResult;
 
-        // Validasi childId hanya jika user adalah parent
+        // Validasi childId jika user adalah parent
         let childId = null;
         if (userRole === 'parent') {
             if (!req.body.childId) {
@@ -28,26 +29,61 @@ const createPayment = async (req, res) => {
             childId = req.body.childId;
         }
 
-        const paymentProofPath = req.file ? getFileUrl(req, `proof/${req.file.filename}`) : null;
-
-        const classData = await Class.findByPk(validationResult.data.classId);
-
+        const classData = await Class.findByPk(data.classId);
         if (!classData) {
             throw new AppError("Data Kelas tidak tersedia", 404);
         }
 
-        const datePart = new Date().toISOString().slice(2, 10).split('-').reverse().join('');
-        const classNameSlug = classData.name.toLowerCase().replace(/\s+/g, '_'); // ubah spasi ke underscore
-        const noRef = `${datePart}_${classNameSlug}`;
+        // Cek existing enrollment
+        const existingEnrollment = await ClassEnrollment.findOne({
+            where: {
+                classId: data.classId,
+                ...(userRole === 'parent' ? { childId } : { studentId: userId })
+            }
+        });
 
+        let enrollmentClass;
+
+        if (!existingEnrollment) {
+            // Buat enrollment baru jika belum ada
+            enrollmentClass = await ClassEnrollment.create({
+                classId: data.classId,
+                studentId: userRole === 'parent' ? null : userId,
+                childId: childId,
+                enrolledAt: new Date(),
+                status: 'pending'
+            }, {
+                userId: userId
+            });
+        } else if (existingEnrollment.status === 'active') {
+            // Jika status masih aktif, kembalikan error
+            return res.status(400).json({
+                success: false,
+                message: "Sudah terdaftar di kelas ini dan masih berstatus aktif."
+            });
+        } else {
+            // Jika status selain aktif, update ke pending
+            await existingEnrollment.update({
+                status: 'pending',
+                progress: 0,
+                enrolledAt: new Date()
+            });
+            enrollmentClass = existingEnrollment;
+        }
+
+        // Buat payment
+        const paymentProofPath = req.file ? getFileUrl(req, `proof/${req.file.filename}`) : null;
+        const datePart = new Date().toISOString().slice(2, 10).split('-').reverse().join('');
+        const classNameSlug = classData.name.toLowerCase().replace(/\s+/g, '_');
+        const noRef = `${datePart}_${classNameSlug}`;
         const paymentDate = new Date();
 
         const paymentData = {
             ...data,
-            userId,
+            userId: req.userId,
             childId,
             payment_proof: paymentProofPath,
-            noRef: noRef,
+            noRef,
             paymentDate,
         };
 
@@ -69,21 +105,15 @@ const createPayment = async (req, res) => {
                 },
                 {
                     model: Class,
-                    as: 'forClass',
-
+                    as: 'forClass'
                 }
             ]
         });
 
-        await ClassEnrollment.create({
-            classId: data.classId,
-            studentId: userRole === 'parent' ? null : userId,
-            childId: childId,
-            enrolledAt: new Date(),
-            status: 'pending'
-        }, {
-            userId: userId
-        })
+        await EnrollmentPayment.create({
+            paymentId: newPayment.id,
+            enrollmentId: enrollmentClass.id,
+        });
 
         return res.status(201).json({
             success: true,
@@ -96,8 +126,6 @@ const createPayment = async (req, res) => {
     }
 };
 
-
-
 const getPayments = async (req, res) => {
     try {
         const {
@@ -107,7 +135,7 @@ const getPayments = async (req, res) => {
             search,
         } = req.query;
 
-        const searchFields = ["atas_nama, no_rekening"]
+        const searchFields = ["amount"]
 
         const {
             limit,
@@ -117,7 +145,7 @@ const getPayments = async (req, res) => {
             meta
         } = getPagination(req.query);
 
-        let whereClause = createSearchWhereClause(search, searchFields);;
+        let whereClause = createSearchWhereClause(search, searchFields);
 
         if (userId) {
             whereClause.userId = userId;
@@ -135,11 +163,33 @@ const getPayments = async (req, res) => {
         meta.total = totalCount;
         meta.totalPages = Math.ceil(totalCount / limit);
 
-        const [pending, completed, failed] = await Promise.all([
+        const [pending, completed, failed, userListRaw] = await Promise.all([
             Payment.count({ where: { ...whereClause, status: "pending" } }),
             Payment.count({ where: { ...whereClause, status: "completed" } }),
-            Payment.count({ where: { ...whereClause, status: "failed" } })
+            Payment.count({ where: { ...whereClause, status: "failed" } }),
+            Payment.findAll({
+                where: whereClause,
+                include: [
+                    {
+                        model: User,
+                        as: 'fromUser',
+                        attributes: ['id', 'name']
+                    }
+                ],
+                attributes: [], // ambil hanya dari include
+                raw: true,
+                nest: true
+            })
         ]);
+
+        const availableUsersMap = new Map();
+        for (const row of userListRaw) {
+            const user = row.fromUser;
+            if (user && !availableUsersMap.has(user.id)) {
+                availableUsersMap.set(user.id, { id: user.id, name: user.name });
+            }
+        }
+        const availableUsers = Array.from(availableUsersMap.values());
 
         const { rows: payments } = await Payment.findAndCountAll({
             where: whereClause,
@@ -168,6 +218,7 @@ const getPayments = async (req, res) => {
                 completed,
                 failed
             },
+            availableUsers,
             meta
         });
 
@@ -175,6 +226,8 @@ const getPayments = async (req, res) => {
         return handleError(error, res);
     }
 };
+
+
 
 const getPaymentById = async (req, res) => {
     try {
@@ -211,10 +264,10 @@ const getPaymentById = async (req, res) => {
 const updatePayment = async (req, res) => {
     try {
         const { id } = req.params;
+        const { status } = req.body;
 
-        const validationResult = await validatePaymentData(req.body, 'update');
-        if (!validationResult.isValid) {
-            throw new AppError(validationResult.error.message, validationResult.error.status);
+        if (!status) {
+            throw new AppError("Status harus diisi", 400);
         }
 
         const existing = await Payment.findByPk(id);
@@ -222,9 +275,7 @@ const updatePayment = async (req, res) => {
             throw new AppError("Payment tidak ditemukan", 404);
         }
 
-        const updateData = {
-            ...validationResult.data,
-        };
+        const updateData = { status };
 
         if (req.file) {
             updateData.payment_proof = getFileUrl(req, `payment/${req.file.filename}`);
@@ -232,12 +283,33 @@ const updatePayment = async (req, res) => {
 
         if (req.userRole === 'admin') {
             updateData.confirmation_by = req.userId;
-            if (updateData.status === 'completed') {
+            if (status === 'completed') {
                 updateData.confirmation_date = new Date();
             }
         }
 
-        await existing.update(updateData);
+        // Ambil data EnrollmentPayment berdasarkan paymentId
+        const enrollmentPayments = await EnrollmentPayment.findAll({
+            where: { paymentId: existing.id }
+        });
+
+        if (!enrollmentPayments) {
+            throw new AppError("Enrollemnt Payment tidak ditemukan", 404)
+        }
+
+        // Update status pada semua ClassEnrollment yang terkait
+        for (const ep of enrollmentPayments) {
+            const enrollmentStatus = status === 'completed' ? 'active' : 'pending';
+
+            await ClassEnrollment.update(
+                { status: enrollmentStatus },
+                { where: { id: ep.enrollmentId } }
+            );
+        }
+
+        await existing.update(updateData, {
+            userId: existing.userId
+        });
 
         const updatedPayment = await Payment.findByPk(id, {
             include: [

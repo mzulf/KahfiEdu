@@ -34,6 +34,10 @@ export default class Payment {
             id: data.confirmedBy.id,
             name: data.confirmedBy.name
         } : null;
+        this.availableUsers = data.availableUsers ? data.availableUsers.map(user => ({
+            id: user.id,
+            name: user.name
+        })) : [];
         this.revision = data.revision;
     }
 

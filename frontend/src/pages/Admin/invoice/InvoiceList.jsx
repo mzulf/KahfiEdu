@@ -24,6 +24,9 @@ import {
     Stack,
     Menu,
     MenuItem,
+    FormControl,
+    InputLabel,
+    Select,
 } from '@mui/material';
 
 // Material-UI Icons
@@ -38,6 +41,7 @@ import { useLoading } from '../../../hooks/useLoading';
 import invoiceService from '../../../services/invoiceService';
 import formatDate from '../../../utils/formatDate';
 import { useNavigate } from 'react-router-dom';
+import { useConfirm } from '../../../hooks/useConfirm';
 
 
 const InvoiceList = () => {
@@ -50,8 +54,11 @@ const InvoiceList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedUserId, setSelectedUserId] = useState("");
     const [selectedClassId, setSelectedClassId] = useState("");
+    const [availableUsers, setAvailableUsers] = useState([]);
+    const [statusUpdate, setStatusUpdate] = useState("");
 
     const { showAlert } = useAlert();
+    const confirm = useConfirm();
     const { showLoading, hideLoading } = useLoading();
     const navigate = useNavigate();
 
@@ -62,6 +69,7 @@ const InvoiceList = () => {
                 page: page + 1,
                 limit: rowsPerPage,
                 status,
+                search: searchTerm,
                 userId: selectedUserId,
                 classId: selectedClassId,
             });
@@ -69,6 +77,7 @@ const InvoiceList = () => {
             if (res.success) {
                 setInvoiceData(res.payments);
                 setTotalRows(res.meta?.total || 0);
+                setAvailableUsers(res.availableUsers)
                 setCountData(res.countData)
             }
 
@@ -81,20 +90,13 @@ const InvoiceList = () => {
 
     useEffect(() => {
         fetchInvoice()
-    }, [page, rowsPerPage, totalRows, status, selectedClassId, selectedUserId]);
+    }, [page, rowsPerPage, totalRows, status, selectedClassId, searchTerm, selectedUserId]);
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'complated':
-                return { backgroundColor: 'success.light', color: 'white', borderColor: 'success.main' };
-            case 'pending':
-                return { backgroundColor: 'warning.light', color: 'white', borderColor: 'warning.main' };
-            case 'failed':
-                return { backgroundColor: 'error.light', color: 'white', borderColor: 'error.main' };
-            default:
-                return { backgroundColor: 'grey.100', color: 'grey.800', borderColor: 'grey.200' };
-        }
-    };
+    const statusOptions = [
+        { value: 'pending', label: 'Pending', bg: '#FF9500' },
+        { value: 'completed', label: 'Completed', bg: '#1B986E' },
+        { value: 'failed', label: 'Failed', bg: '#F44336' },
+    ];
 
 
     const handleChangePage = (event, newPage) => {
@@ -111,6 +113,50 @@ const InvoiceList = () => {
         setStatus(event.target.value);
         setPage(0);
     };
+
+    const handleUpdate = async (payment, statusUpdate) => {
+        const statusLabel = {
+            completed: 'Setujui Pembayaran',
+            pending: 'Kembalikan ke Pending',
+            failed: 'Tandai Gagal'
+        };
+
+        const confirmText = {
+            completed: 'Setujui',
+            pending: 'Pendingkan',
+            failed: 'Tandai Gagal'
+        };
+
+        const alertMessage = {
+            completed: `Apakah kamu yakin ingin menyetujui pembayaran dari ${payment.fromUser?.name || 'pengguna ini'}?`,
+            pending: `Apakah kamu ingin mengembalikan pembayaran ini ke status pending?`,
+            failed: `Yakin ingin menandai pembayaran ini sebagai gagal?`
+        };
+
+        const confirmed = await confirm({
+            title: statusLabel[statusUpdate] || 'Konfirmasi Aksi',
+            message: alertMessage[statusUpdate] || 'Apakah kamu yakin dengan tindakan ini?',
+            confirmText: confirmText[statusUpdate] || 'Lanjutkan',
+            cancelText: 'Batal',
+            type: statusUpdate === 'failed' ? 'error' : 'warning'
+        });
+
+        if (confirmed) {
+            showLoading();
+            try {
+                const response = await invoiceService.updatePayment(payment.id, statusUpdate);
+                if (response.success) {
+                    showAlert(response.message, 'success');
+                    fetchInvoice();
+                }
+            } catch (error) {
+                showAlert(error.message || "Gagal memperbarui status pembayaran", 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+    };
+
 
     return (
         <Box sx={{ minHeight: '100vh' }}>
@@ -156,23 +202,48 @@ const InvoiceList = () => {
 
                             {/* Search Input for Table */}
                             <CardContent sx={{ pb: 2, borderBottom: '1px solid', borderColor: 'grey.200' }}>
-                                <InputBase
-                                    placeholder="Cari nama pengguna"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    startAdornment={<SearchIcon sx={{ color: 'grey.400', mr: 1 }} />}
-                                    sx={{
-                                        width: { xs: '100%', sm: 'auto' },
-                                        p: 1,
-                                        border: '1px solid',
-                                        borderColor: 'grey.300',
-                                        borderRadius: '8px',
-                                        '&.Mui-focused': {
-                                            boxShadow: '0 0 0 2px rgba(76, 175, 80, 0.2)',
-                                            borderColor: 'green.500',
-                                        },
-                                    }}
-                                />
+                                <Box display="flex" alignItems="center" justifyContent="space-between">
+                                    <InputBase
+                                        placeholder="Masukkan angka"
+                                        type="number" // ⬅️ ini kunci utama
+                                        inputProps={{
+                                            step: 'any', // ⬅️ izinkan desimal, gunakan "1" jika hanya integer
+                                            min: 0       // opsional: batasi nilai minimal
+                                        }}
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        startAdornment={<SearchIcon sx={{ color: 'grey.400', mr: 1 }} />}
+                                        sx={{
+                                            width: { xs: '100%', sm: 'auto' },
+                                            p: 1,
+                                            border: '1px solid',
+                                            borderColor: 'grey.300',
+                                            borderRadius: '8px',
+                                            '&.Mui-focused': {
+                                                boxShadow: '0 0 0 2px rgba(76, 175, 80, 0.2)',
+                                                borderColor: 'green.500',
+                                            },
+                                        }}
+                                    />
+                                    <FormControl sx={{ minWidth: 180 }}>
+                                        <InputLabel id="user-filter-label" fontSize="12px" textAlign="start">Pilih Pengguna</InputLabel>
+                                        <Select
+                                            label="pilih pengguna"
+                                            value={selectedUserId}
+                                            onChange={(e) => setSelectedUserId(e.target.value)}
+                                            size="small"
+                                            labelId='user-filter-label'
+                                        >
+                                            <MenuItem value="">Semua User</MenuItem>
+                                            {availableUsers.map((user) => (
+                                                <MenuItem key={user.id} value={user.id}>
+                                                    {user.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Box>
+
                             </CardContent>
 
                             {/* Table */}
@@ -187,7 +258,7 @@ const InvoiceList = () => {
                                             <TableCell sx={{ fontWeight: 'medium', color: 'grey.500', textTransform: 'uppercase', fontSize: '0.75rem' }}>Status</TableCell>
                                             <TableCell sx={{ fontWeight: 'medium', color: 'grey.500', textTransform: 'uppercase', fontSize: '0.75rem' }}>Tanggal</TableCell>
                                             <TableCell sx={{ fontWeight: 'medium', color: 'grey.500', textTransform: 'uppercase', fontSize: '0.75rem' }}>Total</TableCell>
-                                            <TableCell sx={{ fontWeight: 'medium', color: 'grey.500', textTransform: 'uppercase', fontSize: '0.75rem' }}>Aksi</TableCell>
+                                            <TableCell sx={{ fontWeight: 'medium', color: 'grey.500', textTransform: 'uppercase', fontSize: '0.75rem' }}>Konfirmasi Oleh</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -203,6 +274,7 @@ const InvoiceList = () => {
                                                         cursor: 'pointer',
                                                         '&:hover': {
                                                             textDecoration: 'underline',
+                                                            textUnderlineOffset: "3px"
                                                         },
                                                     }}
                                                     onClick={() => navigate(`/admin/invoice/detail?invoiceId=${row.id}`)}
@@ -220,19 +292,61 @@ const InvoiceList = () => {
                                                     </Box>
 
                                                 </TableCell>
-                                                <TableCell sx={{ fontSize: '0.875rem', color: 'grey.900' }}>
+                                                <TableCell
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        color: '#5c92ea',
+                                                        cursor: 'pointer',
+                                                        '&:hover': {
+                                                            textDecoration: 'underline',
+                                                            textUnderlineOffset: "3px"
+                                                        },
+                                                    }}
+                                                    onClick={() => navigate(`/admin/class/detail?classId=${row.forClass.id}`)}
+                                                >
                                                     {row.forClass.name}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Chip
-                                                        label={row.status}
-                                                        size="small"
-                                                        sx={{
-                                                            fontWeight: 'semibold',
-                                                            ...getStatusColor(row.status),
-                                                            border: '1px solid',
-                                                        }}
-                                                    />
+                                                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                                                        <Select
+                                                            value={row.status}
+                                                            onChange={e => handleUpdate(row, e.target.value)}
+                                                            sx={{
+                                                                backgroundColor:
+                                                                    row.status === 'completed'
+                                                                        ? '#1B986E'
+                                                                        : row.status === 'pending'
+                                                                            ? '#FF9500'
+                                                                            : row.status === 'failed'
+                                                                                ? '#F44336'
+                                                                                : 'inherit',
+                                                                color: 'white',
+                                                                fontWeight: 300,
+                                                                borderRadius: 1,
+                                                                '.MuiSelect-icon': {
+                                                                    color: 'white',
+                                                                },
+                                                            }}
+                                                        >
+                                                            {statusOptions.map(opt => (
+                                                                <MenuItem
+                                                                    key={opt.value}
+                                                                    value={opt.value}
+                                                                    sx={{
+                                                                        backgroundColor: opt.bg,
+                                                                        color: row.status === opt.value ? 'black' : 'white',
+                                                                        fontWeight: 300,
+                                                                        '&:hover': {
+                                                                            color: 'black',
+                                                                            backgroundColor: opt.bg,
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    {opt.label}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
                                                 </TableCell>
                                                 <TableCell sx={{ fontSize: '0.875rem', color: 'grey.900' }}>
                                                     {formatDate(row.payment_date)}
@@ -244,15 +358,8 @@ const InvoiceList = () => {
                                                         minimumFractionDigits: 0
                                                     }).format(row.amount)}
                                                 </TableCell>
-                                                <TableCell>
-                                                    {/* <Stack direction="row" spacing={1}>
-                                                        <IconButton sx={{ color: 'orange.600', '&:hover': { color: 'orange.800' } }}>
-                                                            <EditIcon sx={{ fontSize: 16 }} />
-                                                        </IconButton>
-                                                        <IconButton sx={{ color: 'error.main', '&:hover': { color: 'error.dark' } }}>
-                                                            <DeleteIcon sx={{ fontSize: 16 }} />
-                                                        </IconButton>
-                                                    </Stack> */}
+                                                <TableCell sx={{ fontSize: '0.875rem', color: 'grey.900' }}>
+                                                    {row.confirmedBy?.name ? row.confirmedBy?.name : "-"}
                                                 </TableCell>
                                             </TableRow>
                                         ))}
