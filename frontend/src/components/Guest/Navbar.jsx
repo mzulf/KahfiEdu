@@ -15,7 +15,7 @@ import { Link, useLocation } from "react-router-dom";
 const pages = [
   { name: "Beranda", path: "/" },
   { name: "Tentang Kami", path: "/tentangkami" },
-  { name: "Program Pilihan", path: "/programpilihan" },
+  
   { name: "Blog", path: "/blog" },
   { name: "Karir", path: "/karir" },
 ];
