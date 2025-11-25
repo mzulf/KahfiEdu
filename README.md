@@ -1,19 +1,37 @@
-a. Nama Aplikasi
-  KahfiEdu
-  
-b. Deskripsi Aplikasi
-  Aplikasi Bimbel BTQ Online merupakan sistem berbasis web yang dirancang untuk mendukung layanan pendidikan Kahfi Education dalam pengelolaan pembelajaran baca tulis Al-Qur’an. Aplikasi ini menyediakan pendaftaran siswa, manajemen pembayaran, absensi, serta laporan perkembangan belajar yang dapat diakses oleh admin, dan orang tua. Seluruh fitur terintegrasi dalam satu platform sehingga proses bimbingan, pemantauan progres, dan administrasi dapat dilakukan dengan lebih mudah, cepat, dan efisien.
-  
-c. Kelas-NIM-Nama-Username github
- 1. Rekayasa Interaksi B - 202210370311334 - Muhammad Zulfiga Arianta Putra - mzulf dan zulfiga
- 2. Rekayasa Interaksi B - 202210370311326 - Muhammad Lazuardy Imany - CakArdy72
- 3. Rekayasa Interaksi B - 202210370311327 - Nadar Alimusa Ramadhani - Halfboiled720p
-    
-d. Link Figma
-https://www.figma.com/design/29slmNZgSWpj4v1n0BgfVU/High-Fidelity-Design?node-id=601-10&t=YvAVo30a8miLXuFN-1
+# KahfiEdu
 
-e. Worksheet
+## Deskripsi Aplikasi
+**KahfiEdu** adalah aplikasi bimbingan belajar (Bimbel) BTQ berbasis web yang dirancang untuk mendukung layanan pendidikan **Kahfi Education**.  
+Aplikasi ini memfasilitasi:  
+- Pendaftaran siswa  
+- Manajemen pembayaran  
+- Absensi  
+- Laporan perkembangan belajar  
 
-f. Low Fidelity Prototype
+Seluruh fitur terintegrasi dalam satu platform sehingga proses bimbingan, pemantauan progres, dan administrasi dapat dilakukan dengan lebih mudah, cepat, dan efisien. Aplikasi dapat diakses oleh **admin** dan **orang tua**.
 
-g. Tabel pembagian tugas (backlog) tiap anggota secara bergantian dengan level 
+---
+
+## Anggota Tim
+
+| Kelas | NIM | Nama | Username GitHub |
+|-------|-----|------|----------------|
+| Rekayasa Interaksi B | 202210370311334 | Muhammad Zulfiga Arianta Putra | mzulf, zulfiga |
+| Rekayasa Interaksi B | 202210370311326 | Muhammad Lazuardy Imany | CakArdy72 |
+| Rekayasa Interaksi B | 202210370311327 | Nadar Alimusa Ramadhani | Halfboiled720p |
+
+---
+
+## Link Desain
+- **Figma (High-Fidelity Design)**: [Klik di sini](https://www.figma.com/design/29slmNZgSWpj4v1n0BgfVU/High-Fidelity-Design?node-id=601-10&t=YvAVo30a8miLXuFN-1)
+
+---
+
+## Dokumen Pendukung
+- **Worksheet**  
+- **Low Fidelity Prototype**  
+
+---
+
+## Tabel Pembagian Tugas (Backlog)
+Pembagian tugas tiap anggota dilakukan secara bergantian dengan level prioritas tertentu:  
