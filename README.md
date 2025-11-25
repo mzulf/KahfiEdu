@@ -35,3 +35,10 @@ Seluruh fitur terintegrasi dalam satu platform sehingga proses bimbingan, pemant
 
 ## Tabel Pembagian Tugas (Backlog)
 Pembagian tugas tiap anggota dilakukan secara bergantian dengan level prioritas tertentu:  
+| Anggota  | Tugas Admin      | Tugas User                                                                                                                                                                                                        |
+| -------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Zulfiga  | Semua page admin | - Login<br>- Register<br>- Forgot Password<br>- OTP<br>- Semua landing page untuk guest<br>- Dashboard<br>- Menu bar<br>- Absensi<br>- Data guru<br>- Jadwal guru<br>- Profil<br>- Profil Edit<br>- Profil Detail |
+| Lazuardy | -                | -                                                                                                                                                                                                                 |
+| Nadar    | -                | -                                                                                                                                                                                                                 |
+
+
