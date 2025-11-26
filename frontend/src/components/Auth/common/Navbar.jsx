@@ -31,9 +31,11 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 
 import { styled, alpha } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../../hooks/useAuth";
 
+// ⭐ UPDATED — Kita perlu Link untuk navigasi notif
+import { Link, useNavigate, useLocation } from "react-router-dom";
+
+import { useAuth } from "../../../hooks/useAuth";
 
 // Search Input
 const Search = styled("div")(({ theme }) => ({
@@ -65,7 +67,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-
 export default function Navbar() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
@@ -86,48 +87,46 @@ export default function Navbar() {
 
   // Sidebar menu list
   const menuItems = [
-  {
-    name: "Dashboard",
-    icon: <DashboardIcon color="success" />,
-    path: "/siswa",
-  },
-  {
-    name: "Jadwal",
-    icon: <CalendarMonthIcon color="success" />,
-    path: "/siswa/jadwal",        // ✔ Sudah disesuaikan
-  },
-  {
-    name: "Data Guru",
-    icon: <StorageIcon color="success" />,
-    path: "/siswa/pengajar",
-  },
-  {
-    name: "Materi",
-    icon: <MenuBookIcon color="success" />,
-    path: "/siswa/materi",
-  },
-  {
-    name: "Program",
-    icon: <AssignmentIcon color="success" />,
-    path: "/siswa/program",
-  },
-  {
-    name: "Profile",
-    icon: <PersonIcon color="success" />,
-    path: "/siswa/profile",
-  },
-];
-
-
+    {
+      name: "Dashboard",
+      icon: <DashboardIcon color="success" />,
+      path: "/siswa",
+    },
+    {
+      name: "Jadwal",
+      icon: <CalendarMonthIcon color="success" />,
+      path: "/siswa/jadwal",
+    },
+    {
+      name: "Data Guru",
+      icon: <StorageIcon color="success" />,
+      path: "/siswa/pengajar",
+    },
+    {
+      name: "Materi",
+      icon: <MenuBookIcon color="success" />,
+      path: "/siswa/materi",
+    },
+    {
+      name: "Program",
+      icon: <AssignmentIcon color="success" />,
+      path: "/siswa/program",
+    },
+    {
+      name: "Profile",
+      icon: <PersonIcon color="success" />,
+      path: "/siswa/profile",
+    },
+  ];
 
   return (
     <Box sx={{ flexGrow: 1 }}>
       {/* NAVBAR */}
-      <AppBar position="static" elevation={0} sx={{ backgroundColor: "white", color: "black" }}>
+      <AppBar position="static" elevation={0} sx={{ backgroundColor: "lightgreen", color: "black" }}>
         <Container maxWidth="xl">
           <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
 
-            {/* LEFT GROUP: BURGER + LOGO */}
+            {/* LEFT GROUP */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <IconButton onClick={toggleDrawer}>
                 <MenuIcon />
@@ -142,6 +141,7 @@ export default function Navbar() {
 
             {/* RIGHT SIDE (DESKTOP) */}
             <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 2 }}>
+
               <Search sx={{ display: "flex", alignItems: "center" }}>
                 <SearchIconWrapper>
                   <SearchIcon />
@@ -149,7 +149,12 @@ export default function Navbar() {
                 <StyledInputBase placeholder="Search…" />
               </Search>
 
-              <IconButton color="success">
+              {/* ⭐ UPDATED — ICON NOTIF SEKARANG BISA DIKLIK DAN MENUJU HALAMAN NOTIF */}
+              <IconButton
+                color="success"
+                component={Link}            // ⭐ UPDATED
+                to="/siswa/notifikasi"      // ⭐ UPDATED — menuju halaman notif
+              >
                 <NotificationsIcon />
               </IconButton>
 
@@ -167,7 +172,6 @@ export default function Navbar() {
         <MenuItem onClick={() => navigate("/siswa/profile")}>Profile</MenuItem>
         <MenuItem onClick={handleLogout}>Logout</MenuItem>
       </Menu>
-
 
       {/* DRAWER SIDEBAR */}
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
@@ -212,6 +216,7 @@ export default function Navbar() {
                 <ListItemText primary="Log out" />
               </ListItemButton>
             </ListItem>
+
           </List>
 
         </Box>

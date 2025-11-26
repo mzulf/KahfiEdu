@@ -22,7 +22,8 @@ import Profile from "../pages/Auth/profil/Profile";
 import ProfileDetail from "../pages/Auth/profil/ProfileDetail";
 import ProfileEdit from "../pages/Auth/profil/ProfileEdit";
 import JadwalSiswa from "../pages/Auth/beranda/JadwalSiswa.jsx";
-
+import NotificationPage from '../pages/Auth/notifikasi/NotificationPage.jsx';
+import MateriSiswa from '../pages/Auth/materi/MateriSiswa.jsx';
 
 
 
@@ -86,7 +87,8 @@ const AppRouter = () => (
             <Route path="profile-edit" element={<ProfileEdit />} />
             <Route path="profile-detail" element={<ProfileDetail />} />
             <Route path="jadwal" element={<JadwalSiswa />} />
-
+            <Route path="notifikasi" element={<NotificationPage />} />
+            <Route path="materi" element={<MateriSiswa />} />
         </Route>
 
 
