@@ -277,36 +277,7 @@ const Profile = () => {
                 No. Telp: {parentData.phone}
               </Typography>
             </Box>
-
-            <Card sx={{ p: 2, textAlign: "center", borderRadius: 3 }}>
-              <Button
-                variant="contained"
-                sx={{
-                  bgcolor: "#4caf50",
-                  color: "white",
-                  textTransform: "none",
-                  fontWeight: "bold",
-                  mb: 2,
-                  width: "100%",
-                  borderRadius: 2,
-                }}
-              >
-                Anak 1
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={<AddIcon />}
-                sx={{
-                  textTransform: "none",
-                  width: "100%",
-                  borderColor: "#4caf50",
-                  color: "#4caf50",
-                  borderRadius: 2,
-                }}
-              >
-                Tambah daftar anak
-              </Button>
-            </Card>
+            
           </Grid>
 
           {/* Right Side - Tabs and Content */}
