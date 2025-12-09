@@ -3,7 +3,7 @@ import { Box, Typography, Link, Container } from "@mui/material";
 
 function Footer() {
   return (
-    <Box sx={{ backgroundColor: "#fff", color: "#000", pt: 6 }}>
+    <Box sx={{ backgroundColor: "lightgreen", color: "#000", pt: 6 }}>
 
       {/* Garis horizontal dan copyright */}
       <Container maxWidth="lg" sx={{ mb: 2 }} >
