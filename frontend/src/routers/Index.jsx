@@ -24,6 +24,11 @@ import ProfileEdit from "../pages/Auth/profil/ProfileEdit";
 import JadwalSiswa from "../pages/Auth/beranda/JadwalSiswa.jsx";
 import NotificationPage from '../pages/Auth/notifikasi/NotificationPage.jsx';
 import MateriSiswa from '../pages/Auth/materi/MateriSiswa.jsx';
+import PemilihanProgram from '../pages/Auth/kelas/PilihProgram.jsx';
+import PemilihanKelas from '../pages/Auth/kelas/PilihKelas.jsx';
+import DetailKelas from '../pages/Auth/kelas/DetailKelas.jsx';
+import MetodePembayaran from '../pages/Auth/pembayaran/MetodePembayaran.jsx';
+import Invoice from '../pages/Auth/pembayaran/Invoice.jsx';
 
 
 
@@ -89,6 +94,11 @@ const AppRouter = () => (
             <Route path="jadwal" element={<JadwalSiswa />} />
             <Route path="notifikasi" element={<NotificationPage />} />
             <Route path="materi" element={<MateriSiswa />} />
+            <Route path="pilih-program" element={<PemilihanProgram />} />
+            <Route path="kelas/pilih-kelas" element={<PemilihanKelas />} />
+            <Route path="kelas/detail-kelas" element={<DetailKelas />} />
+            <Route path="kelas/pembayaran" element={<MetodePembayaran />} />
+            <Route path="kelas/invoice" element={<Invoice />} />
         </Route>
 
 
