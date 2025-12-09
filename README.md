@@ -6,7 +6,7 @@ b. Deskripsi Aplikasi
   
 c. Kelas-NIM-Nama-Username github
  1. Rekayasa Interaksi B - 202210370311334 - Muhammad Zulfiga Arianta Putra - mzulf dan zulfiga
- 2. Rekayasa Interaksi B - 202210370311326 - Muhammad Lazuardy Imany - CakArdy72
+ 2. Rekayasa Interaksi B - 202210370311326 - Muhammad Lazuardy Imany - CakArdy72 dan MLazuardyImany
  3. Rekayasa Interaksi B - 202210370311327 - Nadar Alimusa Ramadhani - Halfboiled720p
     
 d. Link Figma
