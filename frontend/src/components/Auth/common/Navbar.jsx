@@ -109,7 +109,7 @@ export default function Navbar() {
   {
     name: "Program",
     icon: <AssignmentIcon color="success" />,
-    path: "/siswa/program",
+    path: "/siswa/kelas",
   },
   {
     name: "Profile",
