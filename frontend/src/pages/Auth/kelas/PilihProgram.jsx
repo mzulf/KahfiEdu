@@ -1,144 +1,235 @@
-import React, { useState } from "react";
+// src/pages/Auth/kelas/PilihProgram.jsx
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { 
+  Box, 
+  Typography, 
+  Card,
+  Button,
+  Container
+} from "@mui/material";
 
 export default function PilihProgram() {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState(null);
+  const [selectedProgram, setSelectedProgram] = useState(null);
 
-  const programList = [
-    { id: "offline", nama: "Kelas privat mengaji visit home offline", icon: "🏠" },
-    { id: "online", nama: "Kelas privat mengaji visit home online", icon: "📶" },
-    { id: "tahsin", nama: "Kelas tahsin full online", icon: "📖" },
-    { id: "tahfidz", nama: "Kelas tahfidz full online", icon: "📚" }
+  // 4 opsi program
+  const programs = [
+    {
+      id: 1,
+      title: "Kelas privat mengaji",
+      subtitle: "visit home offline",
+      icon: "🏠",
+      type: "offline"
+    },
+    {
+      id: 2,
+      title: "Kelas privat mengaji",
+      subtitle: "visit home online",
+      icon: "🏠📶",
+      type: "online"
+    },
+    {
+      id: 3,
+      title: "Kelas tahsin full",
+      subtitle: "online",
+      icon: "📖",
+      type: "tahsin-online"
+    },
+    {
+      id: 4,
+      title: "Kelas tahfidz full",
+      subtitle: "online",
+      icon: "📕",
+      type: "tahfidz-online"
+    }
   ];
 
-  const handleNext = () => {
-    if (!selected) return;
+  const handleProgramClick = (program) => {
+    setSelectedProgram(program.id);
+  };
 
-    // NAVIGASI KE HALAMAN PILIH KELAS
-    navigate("/siswa/kelas/pilih-kelas", {
-      state: { program: selected },
-    });
+  const handleBack = () => {
+    navigate("/siswa/kelas");
+  };
+
+  const handleLanjut = () => {
+    if (!selectedProgram) {
+      alert("Silakan pilih program terlebih dahulu");
+      return;
+    }
+    
+    // Kirim data program yang dipilih ke halaman berikutnya
+    const program = programs.find(p => p.id === selectedProgram);
+    navigate("/siswa/kelas/pilih-kelas", { state: { program } });
   };
 
   return (
-    <div style={styles.pageWrapper}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Pilih Program</h1>
-        <p style={styles.subtitle}>
-          Yuk, pilih program belajar kamu sebelum daftar lebih lanjut!
-        </p>
+    <Box sx={{ backgroundColor: "#F5F5F5", minHeight: "100vh", pb: 4 }}>
+      <Container maxWidth="md" sx={{ pt: 4 }}>
+        
+        {/* Card Container */}
+        <Card
+          sx={{
+            borderRadius: 4,
+            border: "1px solid #E0E0E0",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            p: 6,
+            mt: 4
+          }}
+        >
+          {/* Title */}
+          <Typography 
+            variant="h4" 
+            fontWeight="bold" 
+            textAlign="center" 
+            mb={2}
+          >
+            Pilih Program
+          </Typography>
 
-        <div style={styles.grid}>
-          {programList.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => setSelected(item)}
-              style={{
-                ...styles.programCard,
-                border:
-                  selected?.id === item.id
-                    ? "2px solid #008b47"
-                    : "2px solid #ccc",
-                boxShadow:
-                  selected?.id === item.id
-                    ? "0 4px 12px rgba(0,0,0,0.15)"
-                    : "none",
-              }}
-            >
-              <div style={styles.icon}>{item.icon}</div>
-              <div style={styles.programName}>{item.nama}</div>
-            </div>
-          ))}
-        </div>
+          {/* Subtitle */}
+          <Typography 
+            variant="body1" 
+            color="text.secondary" 
+            textAlign="center" 
+            mb={4}
+          >
+            Yuk, pilih program belajar kamu sebelum daftar lebih lanjut!
+          </Typography>
 
-        <div style={styles.buttonWrapper}>
-          <button style={styles.backBtn} onClick={() => navigate(-1)}>
-            Back
-          </button>
-
-          <button
-            onClick={handleNext}
-            disabled={!selected}
-            style={{
-              ...styles.nextBtn,
-              opacity: selected ? 1 : 0.4,
-              cursor: selected ? "pointer" : "not-allowed",
+          {/* Program Options Grid */}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              gap: 3,
+              mb: 4
             }}
           >
-            Lanjut
-          </button>
-        </div>
-      </div>
-    </div>
+            {programs.map((program) => (
+              <Card
+                key={program.id}
+                onClick={() => handleProgramClick(program)}
+                sx={{
+                  border: selectedProgram === program.id 
+                    ? "3px solid #10B981" 
+                    : "2px solid #E0E0E0",
+                  borderRadius: 3,
+                  p: 3,
+                  cursor: "pointer",
+                  transition: "all 0.3s",
+                  backgroundColor: selectedProgram === program.id 
+                    ? "#F0FDF4" 
+                    : "white",
+                  "&:hover": {
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    transform: "translateY(-2px)"
+                  }
+                }}
+              >
+                {/* Icon */}
+                <Box
+                  sx={{
+                    fontSize: "60px",
+                    textAlign: "center",
+                    mb: 2
+                  }}
+                >
+                  {program.icon}
+                </Box>
+
+                {/* Title */}
+                <Typography 
+                  variant="body1" 
+                  fontWeight="600" 
+                  textAlign="center"
+                  mb={0.5}
+                >
+                  {program.title}
+                </Typography>
+
+                {/* Subtitle */}
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary" 
+                  textAlign="center"
+                >
+                  visit home <strong>{program.subtitle.includes('offline') ? 'offline' : 'online'}</strong>
+                </Typography>
+              </Card>
+            ))}
+          </Box>
+
+          {/* Buttons */}
+          <Box 
+            sx={{ 
+              display: "flex", 
+              justifyContent: "center", 
+              gap: 2,
+              mt: 4
+            }}
+          >
+            <Button
+              onClick={handleBack}
+              variant="outlined"
+              sx={{
+                borderRadius: 8,
+                px: 4,
+                py: 1.5,
+                textTransform: "none",
+                fontSize: "16px",
+                borderColor: "#E0E0E0",
+                color: "#374151",
+                "&:hover": {
+                  borderColor: "#9CA3AF",
+                  backgroundColor: "#F9FAFB"
+                }
+              }}
+            >
+              Back
+            </Button>
+
+            <Button
+              onClick={handleLanjut}
+              variant="contained"
+              disabled={!selectedProgram}
+              sx={{
+                borderRadius: 8,
+                px: 4,
+                py: 1.5,
+                textTransform: "none",
+                fontSize: "16px",
+                backgroundColor: "#10B981",
+                "&:hover": {
+                  backgroundColor: "#059669"
+                },
+                "&:disabled": {
+                  backgroundColor: "#D1D5DB"
+                }
+              }}
+            >
+              Lanjut
+            </Button>
+          </Box>
+
+        </Card>
+
+      </Container>
+
+      {/* Footer */}
+      <Box
+        sx={{
+          backgroundColor: "#A7F3D0",
+          textAlign: "center",
+          py: 2,
+          mt: 6
+        }}
+      >
+        <Typography variant="caption" color="text.secondary">
+          Copyright © 2025 Kahfi Education, All rights Reserved | Bug report to Phone: +6289987167784
+        </Typography>
+      </Box>
+    </Box>
   );
 }
-
-const styles = {
-  pageWrapper: {
-    minHeight: "100vh",
-    background: "#f7fdfb",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  card: {
-    width: "80%",
-    background: "#fff",
-    borderRadius: 20,
-    border: "3px solid #d9d9d9",
-    padding: 40,
-    textAlign: "center",
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#555",
-    marginBottom: 30,
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 30,
-    padding: "0 40px",
-  },
-  programCard: {
-    padding: 20,
-    borderRadius: 16,
-    cursor: "pointer",
-    transition: ".3s",
-    background: "#fff",
-  },
-  icon: {
-    fontSize: 45,
-  },
-  programName: {
-    marginTop: 10,
-    fontWeight: "600",
-  },
-  buttonWrapper: {
-    marginTop: 40,
-    display: "flex",
-    justifyContent: "center",
-    gap: 20,
-  },
-  backBtn: {
-    padding: "10px 25px",
-    borderRadius: 25,
-    border: "2px solid black",
-    background: "white",
-    fontWeight: "bold",
-    cursor: "pointer",
-  },
-  nextBtn: {
-    padding: "10px 30px",
-    borderRadius: 25,
-    background: "#008b47",
-    color: "white",
-    border: "none",
-    fontWeight: "bold",
-  },
-};
