@@ -110,7 +110,7 @@ export default function Navbar() {
     {
       name: "Program",
       icon: <AssignmentIcon color="success" />,
-      path: "/siswa/program",
+      path: "/siswa/pilih-program",
     },
     {
       name: "Profile",

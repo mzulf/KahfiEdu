@@ -57,6 +57,7 @@ import InvoiceDetail from '../pages/Admin/invoice/InvoiceDetail';
 import BlogListAdmin from '../pages/Admin/blog/BlogList';
 import BlogCreate from '../pages/Admin/blog/BlogCreate';
 import BlogEdit from '../pages/Admin/blog/BlogEdit';
+import DataGuru from '../pages/Admin/settings/data-guru/DataGuru';
 
 const AppRouter = () => (
     <Routes>
@@ -129,6 +130,7 @@ const AppRouter = () => (
             <Route path="role" element={<RoleList />} />
             <Route path="invoice" element={<InvoiceList />} />
             <Route path="invoice/detail" element={<InvoiceDetail />} />
+            <Route path="guru" element={<DataGuru />} />
         </Route>
     </Routes>
 );

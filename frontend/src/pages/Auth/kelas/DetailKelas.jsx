@@ -48,7 +48,7 @@ export default function DetailKelas() {
 
           <button
             style={styles.nextBtn}
-            onClick={() => navigate("/siswa/kelas/daftar", { state: { kelas } })}
+            onClick={() => navigate("/siswa/kelas/pembayaran", { state: { kelas } })}
           >
             Daftar
           </button>
