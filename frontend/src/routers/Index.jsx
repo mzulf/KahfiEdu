@@ -57,6 +57,8 @@ import InvoiceDetail from '../pages/Admin/invoice/InvoiceDetail';
 import BlogListAdmin from '../pages/Admin/blog/BlogList';
 import BlogCreate from '../pages/Admin/blog/BlogCreate';
 import BlogEdit from '../pages/Admin/blog/BlogEdit';
+import MateriList from '../pages/Admin/settings/materi/MateriList';
+
 
 const AppRouter = () => (
     <Routes>
@@ -111,24 +113,29 @@ const AppRouter = () => (
             }
         >
             <Route path="dashboard" element={<DashboardAdmin />} />
-            <Route path="user" element={<UserList />} />
-            <Route path="user/detail" element={<UserDetail />} />
-            <Route path="course" element={<CourseList />} />
-            <Route path="course/detail" element={<CourseDetail />} />
-            <Route path="course/create" element={<CourseCreate />} />
-            <Route path="course/edit" element={<CourseEdit />} />
-            <Route path="class" element={<ClassList />} />
-            <Route path="class/detail" element={<ClassDetail />} />
-            <Route path="blog" element={<BlogListAdmin />} />
-            <Route path="blog/create" element={<BlogCreate />} />
-            <Route path="blog/edit" element={<BlogEdit />} />
-            <Route path="blog/detail" element={<BlogDetailAdmin />} />
-            <Route path="category" element={<CategoryList />} />
-            <Route path="payment-method" element={<PaymentMethodList />} />
-            <Route path="karir" element={<Job />} />
-            <Route path="role" element={<RoleList />} />
-            <Route path="invoice" element={<InvoiceList />} />
-            <Route path="invoice/detail" element={<InvoiceDetail />} />
+                <Route path="user" element={<UserList />} />
+                <Route path="user/detail" element={<UserDetail />} />
+                <Route path="course" element={<CourseList />} />
+                <Route path="course/detail" element={<CourseDetail />} />
+                <Route path="course/create" element={<CourseCreate />} />
+                <Route path="course/edit" element={<CourseEdit />} />
+                <Route path="class" element={<ClassList />} />
+                <Route path="class/detail" element={<ClassDetail />} />
+                <Route path="blog" element={<BlogListAdmin />} />
+                <Route path="blog/create" element={<BlogCreate />} />
+                <Route path="blog/edit" element={<BlogEdit />} />
+                <Route path="blog/detail" element={<BlogDetailAdmin />} />
+
+                {/* ===== SETTINGS ===== */}
+                <Route path="category" element={<CategoryList />} />
+                <Route path="materi" element={<MateriList />} />
+                <Route path="payment-method" element={<PaymentMethodList />} />
+                <Route path="role" element={<RoleList />} />
+                <Route path="karir" element={<Job />} />
+
+                <Route path="invoice" element={<InvoiceList />} />
+                <Route path="invoice/detail" element={<InvoiceDetail />} />
+
         </Route>
     </Routes>
 );

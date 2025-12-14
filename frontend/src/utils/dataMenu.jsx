@@ -65,6 +65,11 @@ const dataMenu = [
                 icon: <HiCollection size={20} />,
                 link: "/admin/category"
             },
+              {
+                title: "Materi",
+                icon: <HiBookOpen size={20} />,
+                link: "/admin/materi"
+            }
         ]
     },
 

@@ -149,11 +149,11 @@ export default function Navbar() {
                 <StyledInputBase placeholder="Search…" />
               </Search>
 
-              {/* ⭐ UPDATED — ICON NOTIF SEKARANG BISA DIKLIK DAN MENUJU HALAMAN NOTIF */}
+              
               <IconButton
                 color="success"
-                component={Link}            // ⭐ UPDATED
-                to="/siswa/notifikasi"      // ⭐ UPDATED — menuju halaman notif
+                component={Link}            
+                to="/siswa/notifikasi"      
               >
                 <NotificationsIcon />
               </IconButton>
