@@ -15,99 +15,96 @@ import { Link, useLocation } from "react-router-dom";
 const pages = [
   { name: "Beranda", path: "/" },
   { name: "Tentang Kami", path: "/tentangkami" },
-  
   { name: "Blog", path: "/blog" },
   { name: "Karir", path: "/karir" },
 ];
 
 const Navbar = () => {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const location = useLocation(); // <--- tambahkan ini
+  const [openMobile, setOpenMobile] = React.useState(false);
+  const location = useLocation();
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
+  const handleToggleMobile = () => {
+    setOpenMobile((prev) => !prev);
   };
 
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
+  const handleClose = () => {
+    setOpenMobile(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleMenuItemClick = (page) => {
-    console.log(`Navigating to: ${page.name}`);
-    handleCloseNavMenu();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const isActive = (path) =>
+    path === "/"
+      ? location.pathname === "/"
+      : location.pathname.startsWith(path);
 
   return (
-    <AppBar position="sticky" elevation={0} sx={{ backgroundColor: "#fff" }}>
-      <div className="px-30">
-        <Toolbar disableGutters>
-          {/* Menu Desktop */}
+    <AppBar
+      position="sticky"
+      elevation={0}
+      sx={{
+        backgroundColor: "#fff",
+        borderBottom: "1px solid #e0e0e0",
+      }}
+    >
+      <Container maxWidth="lg">
+        <Toolbar disableGutters sx={{ minHeight: 72 }}>
+          {/* LOGO */}
+          <Box sx={{ display: "flex", alignItems: "center", mr: 4 }}>
+            <Link to="/">
+              <img
+                src="/img/logo/logo.png"
+                alt="Logo"
+                style={{ height: 48 }}
+              />
+            </Link>
+          </Box>
+
+          {/* MENU DESKTOP */}
           <Box
             sx={{
               flexGrow: 1,
               display: { xs: "none", md: "flex" },
-              justifyContent: "start",
-              alignItems: "center",
+              gap: 2,
             }}
           >
-            <img
-              src="/img/logo/logo.png"
-              alt="Logo"
-              className="h-[50px] mr-16"
-            />
-
-            {pages.map((page) => {
-              const isActive =
-                page.path === "/"
-                  ? location.pathname === "/"
-                  : location.pathname.startsWith(page.path);
-              return (
-                <Button
-                  key={page.name}
-                  component={Link}
-                  to={page.path}
-                  onClick={handleCloseNavMenu}
-                  sx={{
-                    my: 2,
-                    mx: 1,
-                    fontSize: "16px",
-                    fontWeight: "medium",
-                    textTransform: "none",
-                    color: isActive ? "#008B47" : "#000", // aktif hijau, tidak aktif hitam
-                    borderBottom: isActive ? "2px solid #008B47" : "none",
-                    borderRadius: 0,
-                    "&:hover": {
-                      textDecoration: "underline",
-                      backgroundColor: "transparent",
-                    },
-                  }}
-                >
-                  {page.name}
-                </Button>
-              );
-            })}
-
+            {pages.map((page) => (
+              <Button
+                key={page.name}
+                component={Link}
+                to={page.path}
+                onClick={handleClose}
+                sx={{
+                  fontSize: 15,
+                  fontWeight: 500,
+                  textTransform: "none",
+                  color: isActive(page.path) ? "#008B47" : "#333",
+                  borderBottom: isActive(page.path)
+                    ? "2px solid #008B47"
+                    : "2px solid transparent",
+                  borderRadius: 0,
+                  px: 1,
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                    color: "#008B47",
+                  },
+                }}
+              >
+                {page.name}
+              </Button>
+            ))}
           </Box>
 
-          {/* Tombol Masuk & Daftar (Desktop) */}
-          <Box
-            sx={{
-              display: { xs: "none", md: "flex" },
-              justifyContent: "flex-end",
-            }}
-          >
+          {/* AUTH BUTTON DESKTOP */}
+          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1 }}>
             <Button
               component={Link}
               to="/login"
-              variant="contained"
+              variant="outlined"
               sx={{
-                color: "#fff",
-                fontWeight: "bold",
-                backgroundColor: "#008B47",
-                mx: 1,
-                boxShadow: "none",
+                color: "#008B47",
+                borderColor: "#008B47",
+                fontWeight: 600,
+                textTransform: "none",
               }}
             >
               Masuk
@@ -117,106 +114,82 @@ const Navbar = () => {
               to="/register"
               variant="contained"
               sx={{
-                color: "#fff",
-                fontWeight: "bold",
                 backgroundColor: "#008B47",
-                mx: 1,
+                fontWeight: 600,
+                textTransform: "none",
                 boxShadow: "none",
+                "&:hover": { backgroundColor: "#00753c" },
               }}
             >
               Daftar
             </Button>
-
           </Box>
 
-          {/* Hamburger Menu (Mobile) */}
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: { xs: "flex", md: "none" },
-              justifyContent: "flex-end",
-            }}
-          >
-            <IconButton
-              size="large"
-              aria-label="menu"
-              onClick={anchorElNav ? handleCloseNavMenu : handleOpenNavMenu}
-              sx={{ color: "black" }}
-            >
-              {anchorElNav ? <CloseIcon /> : <MenuIcon />}
+          {/* MOBILE BUTTON */}
+          <Box sx={{ display: { xs: "flex", md: "none" } }}>
+            <IconButton onClick={handleToggleMobile}>
+              {openMobile ? <CloseIcon /> : <MenuIcon />}
             </IconButton>
           </Box>
         </Toolbar>
+      </Container>
 
-        {/* Menu Dropdown Mobile */}
+      {/* MOBILE MENU */}
+      {openMobile && (
         <Box
           sx={{
-            position: "absolute",
-            top: "64px",
-            left: 0,
-            width: "100vw",
-            bgcolor: "#fff",
-            display: anchorElNav ? "block" : "none",
-            zIndex: 1300,
-            boxShadow: 0,
+            backgroundColor: "#fff",
+            borderTop: "1px solid #e0e0e0",
           }}
         >
           {pages.map((page) => (
             <MenuItem
               key={page.name}
-              onClick={() => handleMenuItemClick(page)}
+              component={Link}
+              to={page.path}
+              onClick={handleClose}
               sx={{
-                textAlign: "center",
-                color: "black",
-                backgroundColor: "white",
+                justifyContent: "center",
+                py: 1.5,
+                color: isActive(page.path) ? "#008B47" : "#333",
+                fontWeight: isActive(page.path) ? 600 : 400,
               }}
             >
-              <Link
-                to={page.path}
-                onClick={handleCloseNavMenu}
-                style={{ width: "100%", textDecoration: "none", color: "black" }}
-              >
-                <Typography
-                  sx={{
-                    color: location.pathname === page.path ? "#008B47" : "black",
-                    fontWeight: location.pathname === page.path ? 600 : 400,
-                  }}
-                >
-                  {page.name}
-                </Typography>
-              </Link>
+              {page.name}
             </MenuItem>
           ))}
-          <MenuItem onClick={handleCloseNavMenu}>
+
+          <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 1 }}>
             <Button
               component={Link}
-              to="/register"
-              variant="contained"
+              to="/login"
+              variant="outlined"
+              onClick={handleClose}
               sx={{
-                color: "white",
-                width: "100%",
-                backgroundColor: "#008B47",
-              }}
-            >
-              Daftar
-            </Button>
-          </MenuItem>
-          <MenuItem onClick={handleCloseNavMenu}>
-            <Button
-              component={Link}
-              to="/masuk"
-              variant="contained"
-              sx={{
-                color: "white",
-                width: "100%",
-                backgroundColor: "#008B47",
+                borderColor: "#008B47",
+                color: "#008B47",
+                fontWeight: 600,
+                textTransform: "none",
               }}
             >
               Masuk
             </Button>
-          </MenuItem>
+            <Button
+              component={Link}
+              to="/register"
+              variant="contained"
+              onClick={handleClose}
+              sx={{
+                backgroundColor: "#008B47",
+                fontWeight: 600,
+                textTransform: "none",
+              }}
+            >
+              Daftar
+            </Button>
+          </Box>
         </Box>
-      </div>
+      )}
     </AppBar>
   );
 };

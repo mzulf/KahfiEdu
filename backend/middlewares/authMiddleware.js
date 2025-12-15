@@ -1,41 +1,34 @@
 const { verifyToken } = require('../helpers/jwtHelper');
-const { User } = require("../models");
-const { AppError } = require('../helpers/helperFunction');
+const { User, Role } = require("../models");
 
 const validateToken = async (req, res, next) => {
     try {
-        let token = req.headers["authorization"];
-
+        let token = req.headers.authorization;
         if (!token) {
-            throw new AppError("No token provided", 403);
+            return res.status(401).json({ message: "Unauthorized" });
         }
 
-        // Remove Bearer prefix if present
         if (token.startsWith("Bearer ")) {
             token = token.slice(7);
         }
 
-        // Verify token using helper
         const decoded = verifyToken(token);
 
-        const user = await User.findOne({
-            where: {
-                id: decoded.userId
-            },
-            attributes: ['id', 'email', 'roleId'] // Only fetch needed fields
+        const user = await User.findByPk(decoded.userId, {
+            include: {
+                model: Role,
+                as: 'role',
+                attributes: ['name']
+            }
         });
 
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: "Token tidak valid"
-            });
+        if (!user || !user.role) {
+            return res.status(401).json({ message: "Unauthorized" });
         }
 
-        // Set request properties
-        req.user = decoded;
-        req.userId = decoded.userId;
-        req.userRole = decoded.role;
+        req.user = user;
+        req.userId = user.id;
+        req.userRole = user.role.name; // 🔥 PENTING
 
         next();
     } catch (error) {

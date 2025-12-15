@@ -30,42 +30,68 @@ const {
     jobRoute,
 } = require('./routeImports.js');
 
-// Materi route
-const materiRoute = require('./materiroutes'); // <--- ini route materi kamu
+// ==================== MATERI ROUTE ====================
+const materiRoute = require('./materiRoute'); // ⬅️ HARUS SESUAI NAMA FILE
 
-// -------------------- Public routes --------------------
-// Routes yang bisa diakses tanpa token
+// -------------------- PUBLIC ROUTES --------------------
+// tanpa token
 router.use('/auth', authRoute);
 router.use(googleAuthRoute);
-router.use([courseRoute, blogRoute, jobRoute]);
 
-// Materi bisa diakses publik
+// public content
+router.use([
+    courseRoute,
+    blogRoute,
+    jobRoute,
+]);
+
+// ==================== MATERI PUBLIC ====================
+// GET /api/v1/materi
+// GET /api/v1/materi/:id
 router.use('/materi', materiRoute);
 
-// -------------------- Token validation middleware --------------------
+// -------------------- TOKEN VALIDATION --------------------
 router.use((req, res, next) => {
     validateToken(req, res, next);
 });
 
-// -------------------- User validation --------------------
+// -------------------- USER VALIDATION --------------------
 router.use('/validate/user', validateDataUser);
 
-// -------------------- Protected routes - Core features --------------------
-router.use([userRoute, roleRoute, revisionRoute]);
+// -------------------- PROTECTED ROUTES --------------------
+router.use([
+    userRoute,
+    roleRoute,
+    revisionRoute
+]);
 
-// -------------------- Protected routes - Payment related --------------------
-router.use([paymentMethodRoute, bankRoute, paymentRoute]);
+router.use([
+    paymentMethodRoute,
+    bankRoute,
+    paymentRoute
+]);
 
-// -------------------- Protected routes - Educational features --------------------
-router.use([childrenRoute, categoryRoute, classRoute, classEnrollmentRoute, lessonRoute, attendanceRoute, assignmentRoute, submissionRoute]);
+router.use([
+    childrenRoute,
+    categoryRoute,
+    classRoute,
+    classEnrollmentRoute,
+    lessonRoute,
+    attendanceRoute,
+    assignmentRoute,
+    submissionRoute
+]);
 
-// -------------------- Protected routes - Additional features --------------------
-router.use([regionRoute]);
+router.use([
+    regionRoute,
+]);
 
-// -------------------- Export / Import functionality --------------------
-router.use([importRoute, exportRoute]);
+router.use([
+    importRoute,
+    exportRoute
+]);
 
-// -------------------- Development only routes --------------------
+// -------------------- DEV ONLY --------------------
 if (process.env.NODE_ENV === 'development') {
     router.get('/debug/jwt', (req, res) => {
         const userId = req.user?.id;
@@ -79,11 +105,11 @@ if (process.env.NODE_ENV === 'development') {
     });
 }
 
-// -------------------- Fallback 404 --------------------
+// -------------------- FALLBACK 404 --------------------
 router.use((req, res) => {
     res.status(404).json({
         success: false,
-        message: "Route not found"
+        message: 'Route not found'
     });
 });
 

@@ -1,25 +1,19 @@
 const { Op } = require('sequelize');
 const { Materi } = require('../models');
 const { AppError, handleError } = require('../helpers/helperFunction');
-const { isAdmin } = require('../helpers/validationRole');
 
 /**
- * GET LIST (Admin & User)
- * Query params: search, status (all|active|deleted), page, limit
+ * ======================
+ * GET ALL (PUBLIC)
+ * ======================
  */
 const getMateri = async (req, res) => {
     const { search = '', status = 'all', page = 1, limit = 10 } = req.query;
-
     const whereClause = {};
 
-    // FILTER STATUS
-    if (status === 'active') {
-        whereClause.deletedAt = null;
-    } else if (status === 'deleted') {
-        whereClause.deletedAt = { [Op.not]: null };
-    }
+    if (status === 'active') whereClause.deletedAt = null;
+    if (status === 'deleted') whereClause.deletedAt = { [Op.not]: null };
 
-    // SEARCH
     if (search) {
         whereClause[Op.or] = [
             { title: { [Op.like]: `%${search}%` } },
@@ -28,164 +22,133 @@ const getMateri = async (req, res) => {
     }
 
     try {
-        const offset = (page - 1) * limit;
-
         const { count, rows } = await Materi.findAndCountAll({
             where: whereClause,
+            paranoid: false,
+            limit: +limit,
+            offset: (+page - 1) * +limit,
             order: [['createdAt', 'DESC']],
-            limit: parseInt(limit, 10),
-            offset: parseInt(offset, 10),
-            paranoid: false, // agar include deleted
         });
 
-        res.status(200).json({
+        res.json({
             success: true,
-            message: 'Materi berhasil diambil',
             data: rows,
-            pagination: {
-                total: count,
-                page: parseInt(page, 10),
-                limit: parseInt(limit, 10),
-            },
+            pagination: { total: count, page: +page, limit: +limit },
         });
-    } catch (error) {
-        return handleError(error, res);
+    } catch (err) {
+        handleError(err, res);
     }
 };
 
 /**
- * GET DETAIL (USER)
+ * ======================
+ * GET BY ID (PUBLIC)
+ * ======================
  */
 const getMateriById = async (req, res) => {
-    const { id } = req.params;
     try {
-        const materi = await Materi.findByPk(id, { paranoid: false });
-
+        const materi = await Materi.findByPk(req.params.id, { paranoid: false });
         if (!materi) throw new AppError('Materi tidak ditemukan', 404);
 
-        res.status(200).json({
-            success: true,
-            message: 'Detail materi berhasil diambil',
-            data: materi,
-        });
-    } catch (error) {
-        return handleError(error, res);
+        res.json({ success: true, data: materi });
+    } catch (err) {
+        handleError(err, res);
     }
 };
 
 /**
- * CREATE (Admin)
+ * ======================
+ * CREATE
+ * ======================
  */
 const createMateri = async (req, res) => {
-    const { title, desc, detail } = req.body;
-    const file = req.file;
-
-    // VALIDASI ADMIN
-    const validation = isAdmin(req.userRole, req.userId);
-    if (!validation.isValid) throw new AppError(validation.error.message, validation.error.status);
-
-    if (!title || !desc || !detail) throw new AppError('Semua field wajib diisi');
-
     try {
         const materi = await Materi.create({
-            title,
-            description: desc,
-            detail,
-            imageUrl: file ? `/uploads/${file.filename}` : null,
-        }, { userId: req.userId });
-
-        res.status(201).json({
-            success: true,
-            message: 'Materi berhasil dibuat',
-            data: materi,
+            title: req.body.title,
+            description: req.body.desc,
+            detail: req.body.detail,
+            imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
         });
-    } catch (error) {
-        return handleError(error, res);
+
+        res.status(201).json({ success: true, data: materi });
+    } catch (err) {
+        handleError(err, res);
     }
 };
 
 /**
- * UPDATE (Admin)
+ * ======================
+ * UPDATE
+ * ======================
  */
 const updateMateri = async (req, res) => {
-    const { id } = req.params;
-    const { title, desc, detail } = req.body;
-    const file = req.file;
-
-    // VALIDASI ADMIN
-    const validation = isAdmin(req.userRole, req.userId);
-    if (!validation.isValid) throw new AppError(validation.error.message, validation.error.status);
-
     try {
-        const materi = await Materi.findByPk(id, { paranoid: false });
+        const materi = await Materi.findByPk(req.params.id, { paranoid: false });
         if (!materi) throw new AppError('Materi tidak ditemukan', 404);
 
-        // UPDATE FIELD
-        if (title) materi.title = title;
-        if (desc) materi.description = desc;
-        if (detail) materi.detail = detail;
-        if (file) materi.imageUrl = `/uploads/${file.filename}`;
+        materi.title = req.body.title ?? materi.title;
+        materi.description = req.body.desc ?? materi.description;
+        materi.detail = req.body.detail ?? materi.detail;
+        materi.imageUrl = req.file
+            ? `/uploads/${req.file.filename}`
+            : materi.imageUrl;
 
-        await materi.save({ userId: req.userId });
-
-        res.status(200).json({
-            success: true,
-            message: 'Materi berhasil diperbarui',
-            data: materi,
-        });
-    } catch (error) {
-        return handleError(error, res);
+        await materi.save();
+        res.json({ success: true, data: materi });
+    } catch (err) {
+        handleError(err, res);
     }
 };
 
 /**
- * DELETE (Soft Delete)
+ * ======================
+ * SOFT DELETE
+ * ======================
  */
 const deleteMateri = async (req, res) => {
-    const { id } = req.params;
-
-    // VALIDASI ADMIN
-    const validation = isAdmin(req.userRole, req.userId);
-    if (!validation.isValid) throw new AppError(validation.error.message, validation.error.status);
-
     try {
-        const materi = await Materi.findByPk(id, { paranoid: false });
+        const materi = await Materi.findByPk(req.params.id);
         if (!materi) throw new AppError('Materi tidak ditemukan', 404);
 
-        if (materi.deletedAt) {
-            // Hapus permanen jika sudah soft delete sebelumnya
-            await materi.destroy({ force: true, userId: req.userId });
-            return res.status(200).json({ success: true, message: 'Materi berhasil dihapus permanen' });
-        }
-
-        await materi.destroy({ userId: req.userId }); // soft delete
-        res.status(200).json({ success: true, message: 'Materi berhasil dihapus' });
-    } catch (error) {
-        return handleError(error, res);
+        await materi.destroy();
+        res.json({ success: true, message: 'Materi dihapus (soft delete)' });
+    } catch (err) {
+        handleError(err, res);
     }
 };
 
 /**
+ * ======================
  * RESTORE
+ * ======================
  */
 const restoreMateri = async (req, res) => {
-    const { id } = req.params;
-
-    // VALIDASI ADMIN
-    const validation = isAdmin(req.userRole, req.userId);
-    if (!validation.isValid) throw new AppError(validation.error.message, validation.error.status);
-
     try {
-        const materi = await Materi.findByPk(id, { paranoid: false });
+        const materi = await Materi.findByPk(req.params.id, { paranoid: false });
+        if (!materi || !materi.deletedAt)
+            throw new AppError('Tidak bisa restore', 400);
+
+        await materi.restore();
+        res.json({ success: true, data: materi });
+    } catch (err) {
+        handleError(err, res);
+    }
+};
+
+/**
+ * ======================
+ * HARD DELETE (PERMANENT)
+ * ======================
+ */
+const deleteMateriPermanent = async (req, res) => {
+    try {
+        const materi = await Materi.findByPk(req.params.id, { paranoid: false });
         if (!materi) throw new AppError('Materi tidak ditemukan', 404);
 
-        if (!materi.deletedAt) throw new AppError('Materi belum dihapus', 400);
-
-        await materi.restore({ userId: req.userId });
-
-        res.status(200).json({ success: true, message: 'Materi berhasil direstore', data: materi });
-    } catch (error) {
-        return handleError(error, res);
+        await materi.destroy({ force: true });
+        res.json({ success: true, message: 'Materi dihapus permanen' });
+    } catch (err) {
+        handleError(err, res);
     }
 };
 
@@ -196,4 +159,5 @@ module.exports = {
     updateMateri,
     deleteMateri,
     restoreMateri,
+    deleteMateriPermanent,
 };

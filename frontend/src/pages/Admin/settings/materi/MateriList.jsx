@@ -28,13 +28,16 @@ import { useConfirm } from "../../../../hooks/useConfirm";
 import materiService from "../../../../services/materiService";
 import MateriDrawer from "../../../../components/Admin/materi/drawer/MateriDrawer";
 
+const API_BASE =
+    import.meta.env.VITE_API_URL?.replace("/api/v1", "") ||
+    "http://localhost:5000";
+
 export default function MateriList() {
     const [materi, setMateri] = useState([]);
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState("all");
 
-    // server-side pagination
-    const [page, setPage] = useState(0); // MUI = 0 based
+    const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [total, setTotal] = useState(0);
 
@@ -46,22 +49,23 @@ export default function MateriList() {
     const { showLoading, hideLoading } = useLoading();
     const confirm = useConfirm();
 
+    // ================= FETCH DATA =================
     const fetchMateri = async () => {
         showLoading();
         try {
-            const response = await materiService.getMateri({
+            const res = await materiService.getMateri({
                 search,
                 status,
-                page: page + 1, // API = 1 based
+                page: page + 1,
                 limit: rowsPerPage,
             });
 
-            if (response.success) {
-                setMateri(response.data); // ✅ SUDAH MateriClass
-                setTotal(response.pagination.total);
+            if (res.success) {
+                setMateri(res.data);
+                setTotal(res.pagination.total);
             }
-        } catch (error) {
-            showAlert(error.message || "Gagal mengambil data materi", "error");
+        } catch (err) {
+            showAlert(err.message || "Gagal mengambil data materi", "error");
         } finally {
             hideLoading();
         }
@@ -71,6 +75,7 @@ export default function MateriList() {
         fetchMateri();
     }, [search, status, page, rowsPerPage]);
 
+    // ================= DRAWER =================
     const handleOpenDrawer = (mode, data = null) => {
         setEditMode(mode === "edit");
         setSelectedMateri(data);
@@ -83,10 +88,11 @@ export default function MateriList() {
         setEditMode(false);
     };
 
+    // ================= SOFT DELETE =================
     const handleDelete = async (id) => {
         const ok = await confirm({
             title: "Konfirmasi Hapus",
-            message: "Yakin ingin menghapus materi ini?",
+            message: "Materi akan dihapus (soft delete).",
             confirmText: "Hapus",
             cancelText: "Batal",
             type: "error",
@@ -102,15 +108,16 @@ export default function MateriList() {
                 fetchMateri();
             }
         } catch (e) {
-            showAlert(e.message || "Gagal menghapus materi", "error");
+            showAlert(e.message, "error");
         } finally {
             hideLoading();
         }
     };
 
+    // ================= RESTORE =================
     const handleRestore = async (id) => {
         const ok = await confirm({
-            title: "Konfirmasi Restore",
+            title: "Restore Materi",
             message: "Kembalikan materi ini?",
             confirmText: "Restore",
             cancelText: "Batal",
@@ -127,7 +134,33 @@ export default function MateriList() {
                 fetchMateri();
             }
         } catch (e) {
-            showAlert(e.message || "Gagal restore materi", "error");
+            showAlert(e.message, "error");
+        } finally {
+            hideLoading();
+        }
+    };
+
+    // ================= HARD DELETE =================
+    const handleHardDelete = async (id) => {
+        const ok = await confirm({
+            title: "HAPUS PERMANEN",
+            message: "Data akan dihapus permanen dari database!",
+            confirmText: "Hapus Permanen",
+            cancelText: "Batal",
+            type: "error",
+        });
+
+        if (!ok) return;
+
+        showLoading();
+        try {
+            const res = await materiService.deleteMateriPermanent(id);
+            if (res.success) {
+                showAlert("Materi dihapus permanen", "success");
+                fetchMateri();
+            }
+        } catch (e) {
+            showAlert(e.message, "error");
         } finally {
             hideLoading();
         }
@@ -136,7 +169,7 @@ export default function MateriList() {
     return (
         <Grid container spacing={2}>
             <Grid item xs={12}>
-                <Card sx={{ fontFamily: "Poppins" }}>
+                <Card>
                     <CardContent>
                         {/* HEADER */}
                         <Box display="flex" justifyContent="space-between" mb={2}>
@@ -149,7 +182,7 @@ export default function MateriList() {
                             <Button
                                 variant="contained"
                                 startIcon={<HiPlus />}
-                                sx={{ bgcolor: "#008B47", "&:hover": { bgcolor: "#006f3d" } }}
+                                sx={{ bgcolor: "#008B47" }}
                                 onClick={() => handleOpenDrawer("add")}
                             >
                                 Tambah
@@ -191,11 +224,11 @@ export default function MateriList() {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>No</TableCell>
+                                        <TableCell>Gambar</TableCell>
                                         <TableCell>Judul</TableCell>
                                         <TableCell>Deskripsi</TableCell>
+                                        <TableCell>Detail</TableCell>
                                         <TableCell>Status</TableCell>
-                                        <TableCell>Created</TableCell>
-                                        <TableCell>Updated</TableCell>
                                         <TableCell align="center">Aksi</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -213,30 +246,53 @@ export default function MateriList() {
                                                 <TableCell>
                                                     {page * rowsPerPage + index + 1}
                                                 </TableCell>
+
+                                                <TableCell>
+                                                    {item.imageUrl ? (
+                                                        <img
+                                                            src={`${API_BASE}${item.imageUrl}`}
+                                                            alt="materi"
+                                                            width={60}
+                                                            height={60}
+                                                            style={{ borderRadius: 8, objectFit: "cover" }}
+                                                        />
+                                                    ) : "-"}
+                                                </TableCell>
+
                                                 <TableCell>{item.title}</TableCell>
                                                 <TableCell>{item.description}</TableCell>
+
+                                                <TableCell>
+                                                    {item.detail
+                                                        ? item.detail.slice(0, 50) + "..."
+                                                        : "-"}
+                                                </TableCell>
+
                                                 <TableCell>{item.statusLabel}</TableCell>
-                                                <TableCell>
-                                                    {item.createdAt?.toLocaleDateString()}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {item.updatedAt?.toLocaleDateString()}
-                                                </TableCell>
+
                                                 <TableCell align="center">
                                                     {item.deletedAt ? (
-                                                        <Button
-                                                            size="small"
-                                                            color="warning"
-                                                            variant="outlined"
-                                                            onClick={() => handleRestore(item.id)}
-                                                        >
-                                                            Restore
-                                                        </Button>
+                                                        <>
+                                                            <Button
+                                                                size="small"
+                                                                color="warning"
+                                                                onClick={() => handleRestore(item.id)}
+                                                            >
+                                                                Restore
+                                                            </Button>
+                                                            <Button
+                                                                size="small"
+                                                                color="error"
+                                                                sx={{ ml: 1 }}
+                                                                onClick={() => handleHardDelete(item.id)}
+                                                            >
+                                                                Hapus Permanen
+                                                            </Button>
+                                                        </>
                                                     ) : (
                                                         <>
                                                             <Button
                                                                 size="small"
-                                                                variant="outlined"
                                                                 onClick={() =>
                                                                     handleOpenDrawer("edit", item)
                                                                 }
@@ -246,7 +302,6 @@ export default function MateriList() {
                                                             <Button
                                                                 size="small"
                                                                 color="error"
-                                                                variant="outlined"
                                                                 sx={{ ml: 1 }}
                                                                 onClick={() => handleDelete(item.id)}
                                                             >
@@ -272,7 +327,6 @@ export default function MateriList() {
                                 setRowsPerPage(parseInt(e.target.value, 10));
                                 setPage(0);
                             }}
-                            rowsPerPageOptions={[5, 10, 25]}
                         />
                     </CardContent>
                 </Card>
