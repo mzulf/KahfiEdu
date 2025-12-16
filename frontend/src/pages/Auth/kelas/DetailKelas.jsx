@@ -1,4 +1,5 @@
 import React from "react";
+<<<<<<< Updated upstream
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function DetailKelas() {
@@ -121,3 +122,175 @@ const styles = {
     cursor: "pointer",
   },
 };
+=======
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  LinearProgress,
+  Container,
+  IconButton
+} from "@mui/material";
+
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import GradeIcon from "@mui/icons-material/Grade";
+
+export default function DetailKelas() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const course = location.state?.course;
+
+  const handleBack = () => {
+    navigate("/siswa/kelas");
+  };
+
+  if (!course) {
+    return (
+      <Box sx={{ p: 4, textAlign: "center" }}>
+        <Typography variant="h6" mb={2}>
+          Data kelas tidak ditemukan
+        </Typography>
+        <IconButton onClick={handleBack}>
+          <ArrowBackIcon />
+        </IconButton>
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ backgroundColor: "#F5F5F5", minHeight: "100vh", pb: 4 }}>
+      <Container maxWidth="md" sx={{ pt: 4 }}>
+        <IconButton
+          onClick={handleBack}
+          sx={{
+            mb: 3,
+            backgroundColor: "white",
+            border: "1px solid #E0E0E0"
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+
+        <Typography variant="h5" fontWeight="bold" mb={4}>
+          {course.title}
+        </Typography>
+
+        <Card
+          sx={{
+            borderRadius: 3,
+            border: "1px solid #E0E0E0",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+          }}
+        >
+          <CardContent sx={{ p: 4 }}>
+            <Typography variant="body2" color="text.secondary" mb={0.5}>
+              2025, Periode ganjil
+            </Typography>
+
+            <Box sx={{ display: "flex", gap: 1, mb: 4 }}>
+              <Typography variant="body2" fontWeight="600">
+                {course.kelas}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                • Aktif
+              </Typography>
+            </Box>
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {/* Progress Absen */}
+              <ProgressItem
+                icon={<CheckCircleIcon sx={{ color: "#10B981" }} />}
+                label="Progress absen"
+                value={50}
+              />
+
+              {/* Progress Tugas */}
+              <ProgressItem
+                icon={<AssignmentIcon sx={{ color: "#10B981" }} />}
+                label="Progress tugas"
+                value={50}
+              />
+
+              {/* Progress Hafalan */}
+              <ProgressItem
+                icon={<MenuBookIcon sx={{ color: "#10B981" }} />}
+                label="Progress hafalan"
+                value={50}
+              />
+
+              {/* Grade */}
+              <Box
+                sx={{
+                  border: "1px solid #E0E0E0",
+                  borderRadius: 2,
+                  p: 2.5
+                }}
+              >
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                    <GradeIcon sx={{ color: "#10B981" }} />
+                    <Typography fontWeight="500">Grade</Typography>
+                  </Box>
+                  <Typography fontWeight="bold">A (85)</Typography>
+                </Box>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Container>
+
+      <Box
+        sx={{
+          backgroundColor: "#A7F3D0",
+          textAlign: "center",
+          py: 2,
+          mt: 6
+        }}
+      >
+        <Typography variant="caption" color="text.secondary">
+          © 2025 Kahfi Education. All rights reserved.
+        </Typography>
+      </Box>
+    </Box>
+  );
+}
+
+function ProgressItem({ icon, label, value }) {
+  return (
+    <Box
+      sx={{
+        border: "1px solid #E0E0E0",
+        borderRadius: 2,
+        p: 2.5
+      }}
+    >
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1.5 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          {icon}
+          <Typography fontWeight="500">{label}</Typography>
+        </Box>
+        <Typography fontWeight="bold">{value}%</Typography>
+      </Box>
+
+      <LinearProgress
+        variant="determinate"
+        value={value}
+        sx={{
+          height: 8,
+          borderRadius: 1,
+          backgroundColor: "#E5E7EB",
+          "& .MuiLinearProgress-bar": {
+            backgroundColor: "#10B981"
+          }
+        }}
+      />
+    </Box>
+  );
+}
+>>>>>>> Stashed changes
