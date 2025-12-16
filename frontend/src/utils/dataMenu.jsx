@@ -69,7 +69,12 @@ const dataMenu = [
                 title: "Materi",
                 icon: <HiBookOpen size={20} />,
                 link: "/admin/materi"
-            }
+            },
+            {
+                title: "Guru",
+                icon: <HiUserGroup size={20} />,
+                link: "/admin/guru"
+            },
         ]
     },
 

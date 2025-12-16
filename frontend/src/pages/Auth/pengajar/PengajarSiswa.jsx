@@ -12,42 +12,91 @@ import {
   TableRow,
   Paper,
   Avatar,
-  CircularProgress
+  CircularProgress,
+  Alert,
+  TablePagination,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { useEffect, useState } from "react";
-import axios from "../../../libs/axiosInstance"; // Pastikan path ini sesuai struktur project-mu
-import { toast } from "react-toastify";
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+
+// Base URL API
+const API_URL = "http://localhost:5000/api/v1/guru";
+
+// API Key
+const API_KEY = "ueRs7TFkywICK0yI0koUuoVu1OynOmZ";
 
 export default function PengajarSiswa() {
   const [search, setSearch] = useState("");
-  const [guruList, setGuruList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [dataGuru, setDataGuru] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalData, setTotalData] = useState(0);
 
-  // Fetch data guru dari backend
-  useEffect(() => {
-    const fetchGuru = async () => {
-      try {
-        const res = await axios.get("/users/role?roleName=teacher");
-        setGuruList(res.data.users);
-      } catch (err) {
-        toast.error("Gagal memuat data guru");
-      } finally {
-        setLoading(false);
+  /* =======================
+     FETCH DATA GURU FROM API
+  ======================= */
+  const fetchDataGuru = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.get(API_URL, {
+        params: {
+          page: page + 1,
+          limit: rowsPerPage,
+          search: search,
+        },
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      });
+
+      if (response.data?.success) {
+        setDataGuru(response.data.data || []);
+        setTotalData(response.data.total || 0);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError(err.response?.data?.message || "Gagal mengambil data guru");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, rowsPerPage, search]);
 
-    fetchGuru();
-  }, []);
+  /* =======================
+     EFFECT: FETCH ON MOUNT & CHANGE
+  ======================= */
+  useEffect(() => {
+    fetchDataGuru();
+  }, [fetchDataGuru]);
 
-  const filtered = guruList.filter((g) =>
-    g.name.toLowerCase().includes(search.toLowerCase())
-  );
+  /* =======================
+     HANDLE SEARCH WITH DEBOUNCE
+  ======================= */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(0); // Reset ke halaman pertama saat search
+      fetchDataGuru();
+    }, 500); // Delay 500ms untuk debounce
 
-  const getAvatar = (gender, id) => {
-    return gender === "male"
-      ? `https://randomuser.me/api/portraits/men/${id % 100}.jpg`
-      : `https://randomuser.me/api/portraits/women/${id % 100}.jpg`;
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  /* =======================
+     HANDLE PAGINATION
+  ======================= */
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   return (
@@ -58,6 +107,17 @@ export default function PengajarSiswa() {
       >
         Data Guru
       </Typography>
+
+      {/* ERROR ALERT */}
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 3 }}
+          onClose={() => setError(null)}
+        >
+          {error}
+        </Alert>
+      )}
 
       {/* Search Bar */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
@@ -77,44 +137,99 @@ export default function PengajarSiswa() {
         />
       </Box>
 
+      {/* LOADING STATE */}
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+        <Box display="flex" justifyContent="center" py={8}>
           <CircularProgress />
         </Box>
       ) : (
-        <TableContainer
-          component={Paper}
-          sx={{ borderRadius: 4, overflow: "hidden", border: "2px solid #C7C7C7" }}
-        >
-          <Table>
-            <TableHead sx={{ backgroundColor: "#F6F6F6" }}>
-              <TableRow>
-                <TableCell sx={{ fontWeight: "bold" }}>#</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Photo</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Nama</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Nomor Hp</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {filtered.map((guru, i) => (
-                <TableRow key={guru.id}>
-                  <TableCell>{i + 1}</TableCell>
-                  <TableCell>
-                    <Avatar
-                      src={guru.avatar || getAvatar(guru.gender, guru.id)}
-                      sx={{ width: 50, height: 50 }}
-                    />
-                  </TableCell>
-                  <TableCell>{guru.name}</TableCell>
-                  <TableCell>{guru.phone || "-"}</TableCell>
-                  <TableCell>{guru.email}</TableCell>
+        <>
+          {/* Tabel Guru */}
+          <TableContainer
+            component={Paper}
+            sx={{ 
+              borderRadius: 4, 
+              overflow: "hidden", 
+              border: "2px solid #C7C7C7",
+              mb: 2 
+            }}
+          >
+            <Table>
+              <TableHead sx={{ backgroundColor: "#F6F6F6" }}>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: "bold" }}>#</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Photo</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Nama</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Nomor Hp</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+
+              <TableBody>
+                {dataGuru.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                      <Typography color="text.secondary">
+                        Tidak ada data guru
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  dataGuru.map((guru, i) => (
+                    <TableRow 
+                      key={guru.id}
+                      sx={{ '&:hover': { backgroundColor: '#f9f9f9' } }}
+                    >
+                      <TableCell>{page * rowsPerPage + i + 1}</TableCell>
+                      <TableCell>
+                        <Avatar
+                          src={guru.foto || undefined}
+                          alt={guru.nama}
+                          sx={{ 
+                            width: 50, 
+                            height: 50, 
+                            bgcolor: "#008B47" 
+                          }}
+                        >
+                          {!guru.foto && guru.nama?.charAt(0).toUpperCase()}
+                        </Avatar>
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 500 }}>
+                        {guru.nama}
+                      </TableCell>
+                      <TableCell>{guru.nomorTelepon}</TableCell>
+                      <TableCell>{guru.email}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* PAGINATION */}
+          {dataGuru.length > 0 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <TablePagination
+                component="div"
+                count={totalData}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                rowsPerPageOptions={[5, 10, 25, 50]}
+                labelRowsPerPage="Baris per halaman:"
+                labelDisplayedRows={({ from, to, count }) =>
+                  `${from}-${to} dari ${count}`
+                }
+                sx={{
+                  '.MuiTablePagination-toolbar': {
+                    justifyContent: 'center',
+                  }
+                }}
+              />
+            </Box>
+          )}
+        </>
       )}
     </Container>
   );
