@@ -1,138 +1,207 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaBook } from "react-icons/fa";
+// src/pages/Auth/kelas/PilihKelas.jsx
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { 
+  Box, 
+  Typography, 
+  Card,
+  Button,
+  Container
+} from "@mui/material";
+import ClassIcon from "@mui/icons-material/Class";
 
 export default function PilihKelas() {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState(null);
+  const location = useLocation();
+  const [selectedKelas, setSelectedKelas] = useState(null);
 
+  // Ambil data program dari page sebelumnya
+  const program = location.state?.program;
+
+  // List kelas
   const kelasList = [
-    { id: "A", nama: "Kelas A" },
-    { id: "B", nama: "Kelas B" },
-    { id: "C", nama: "Kelas C" },
-    { id: "D", nama: "Kelas D" },
+    { id: "A", name: "Kelas A" },
+    { id: "B", name: "Kelas B" },
+    { id: "C", name: "Kelas C" },
+    { id: "D", name: "Kelas D" }
   ];
 
-  const handleNext = () => {
-    if (!selected) return;
-    navigate("/siswa/kelas/detail-kelas", {
-      state: {
-        kelas: selected, // KIRIM DATA KE HALAMAN DETAIL
-      },
+  const handleKelasClick = (kelas) => {
+    setSelectedKelas(kelas.id);
+  };
+
+  const handleBack = () => {
+    navigate("/siswa/kelas/pilih-program");
+  };
+
+  const handleLanjut = () => {
+    if (!selectedKelas) {
+      alert("Silakan pilih kelas terlebih dahulu");
+      return;
+    }
+    
+    // Kirim data program & kelas ke form pendaftaran
+    const kelasData = kelasList.find(k => k.id === selectedKelas);
+    
+    navigate("/siswa/kelas/detail-pilih-program", { 
+      state: { 
+        program: program,
+        kelas: kelasData
+      } 
     });
   };
 
   return (
-    <div style={styles.pageWrapper}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Pilih Kelas</h1>
+    <Box sx={{ backgroundColor: "#F5F5F5", minHeight: "100vh", pb: 4 }}>
+      <Container maxWidth="md" sx={{ pt: 4 }}>
+        
+        {/* Card Container */}
+        <Card
+          sx={{
+            borderRadius: 4,
+            border: "1px solid #E0E0E0",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            p: 6,
+            mt: 4
+          }}
+        >
+          {/* Title */}
+          <Typography 
+            variant="h4" 
+            fontWeight="bold" 
+            textAlign="center" 
+            mb={6}
+          >
+            Pilih Kelas
+          </Typography>
 
-        <div style={styles.grid}>
-          {kelasList.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => setSelected(item)}
-              style={{
-                ...styles.kelasCard,
-                border:
-                  selected?.id === item.id
-                    ? "2px solid #008b47"
-                    : "2px solid #ccc",
-                boxShadow:
-                  selected?.id === item.id
-                    ? "0 4px 12px rgba(0,0,0,0.15)"
-                    : "none",
+          {/* Kelas Options Grid */}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              gap: 3,
+              mb: 6
+            }}
+          >
+            {kelasList.map((kelas) => (
+              <Card
+                key={kelas.id}
+                onClick={() => handleKelasClick(kelas)}
+                sx={{
+                  border: selectedKelas === kelas.id 
+                    ? "3px solid #10B981" 
+                    : "2px solid #E0E0E0",
+                  borderRadius: 3,
+                  p: 3,
+                  cursor: "pointer",
+                  transition: "all 0.3s",
+                  backgroundColor: selectedKelas === kelas.id 
+                    ? "#F0FDF4" 
+                    : "white",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  "&:hover": {
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    transform: "translateY(-2px)"
+                  }
+                }}
+              >
+                {/* Icon */}
+                <Box
+                  sx={{
+                    backgroundColor: "#10B981",
+                    borderRadius: 2,
+                    p: 1.5,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  <ClassIcon sx={{ color: "white", fontSize: 28 }} />
+                </Box>
+
+                {/* Kelas Name */}
+                <Typography 
+                  variant="h6" 
+                  fontWeight="600"
+                >
+                  {kelas.name}
+                </Typography>
+              </Card>
+            ))}
+          </Box>
+
+          {/* Buttons */}
+          <Box 
+            sx={{ 
+              display: "flex", 
+              justifyContent: "center", 
+              gap: 2,
+              mt: 4
+            }}
+          >
+            <Button
+              onClick={handleBack}
+              variant="outlined"
+              sx={{
+                borderRadius: 8,
+                px: 4,
+                py: 1.5,
+                textTransform: "none",
+                fontSize: "16px",
+                borderColor: "#E0E0E0",
+                color: "#374151",
+                "&:hover": {
+                  borderColor: "#9CA3AF",
+                  backgroundColor: "#F9FAFB"
+                }
               }}
             >
-              <FaBook size={22} color="#008b47" />
-              <span style={styles.kelasText}>{item.nama}</span>
-            </div>
-          ))}
-        </div>
+              Back
+            </Button>
 
-        <div style={styles.buttonWrapper}>
-          <button style={styles.backBtn} onClick={() => navigate(-1)}>
-            Back
-          </button>
+            <Button
+              onClick={handleLanjut}
+              variant="contained"
+              disabled={!selectedKelas}
+              sx={{
+                borderRadius: 8,
+                px: 4,
+                py: 1.5,
+                textTransform: "none",
+                fontSize: "16px",
+                backgroundColor: "#10B981",
+                "&:hover": {
+                  backgroundColor: "#059669"
+                },
+                "&:disabled": {
+                  backgroundColor: "#D1D5DB"
+                }
+              }}
+            >
+              Lanjut
+            </Button>
+          </Box>
 
-          <button
-            style={{
-              ...styles.nextBtn,
-              opacity: selected ? 1 : 0.4,
-              cursor: selected ? "pointer" : "not-allowed",
-            }}
-            disabled={!selected}
-            onClick={handleNext}
-          >
-            Lanjut
-          </button>
-        </div>
-      </div>
-    </div>
+        </Card>
+
+      </Container>
+
+      {/* Footer */}
+      <Box
+        sx={{
+          backgroundColor: "#A7F3D0",
+          textAlign: "center",
+          py: 2,
+          mt: 6
+        }}
+      >
+        <Typography variant="caption" color="text.secondary">
+          Copyright © 2025 Kahfi Education, All rights Reserved | Bug report to Phone: +6289987167784
+        </Typography>
+      </Box>
+    </Box>
   );
 }
-
-const styles = {
-  pageWrapper: {
-    minHeight: "100vh",
-    background: "#f7fdfb",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  card: {
-    width: "75%",
-    background: "#fff",
-    borderRadius: 20,
-    padding: 40,
-    textAlign: "center",
-    border: "3px solid #d9d9d9",
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: "bold",
-    marginBottom: 35,
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 30,
-    padding: "0 40px",
-  },
-  kelasCard: {
-    padding: 20,
-    borderRadius: 16,
-    display: "flex",
-    alignItems: "center",
-    gap: 15,
-    cursor: "pointer",
-    background: "#fff",
-    transition: ".3s",
-  },
-  kelasText: {
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  buttonWrapper: {
-    marginTop: 40,
-    display: "flex",
-    justifyContent: "center",
-    gap: 20,
-  },
-  backBtn: {
-    padding: "10px 25px",
-    borderRadius: 25,
-    border: "2px solid black",
-    background: "white",
-    fontWeight: "bold",
-    cursor: "pointer",
-  },
-  nextBtn: {
-    padding: "10px 30px",
-    borderRadius: 25,
-    background: "#008b47",
-    color: "white",
-    border: "none",
-    fontWeight: "bold",
-  },
-};

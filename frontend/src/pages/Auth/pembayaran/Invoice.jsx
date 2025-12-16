@@ -1,105 +1,109 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogActions, Button, Typography } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { useNavigate } from "react-router-dom";
 
 export default function Invoice() {
-  const [bukti, setBukti] = useState(null);
+  const navigate = useNavigate();
+  const [openSuccess, setOpenSuccess] = useState(false);
 
-  const handleUpload = (e) => {
-    setBukti(e.target.files[0]);
+  const handleSubmit = () => {
+    setOpenSuccess(true);
+
+    // Auto close & redirect after 5 seconds
+    setTimeout(() => {
+      navigate("/siswa");
+    }, 5000);
   };
 
   return (
-    <div style={styles.page}>
-      <h2 style={styles.title}>Invoice</h2>
-      <p style={styles.kode}>INV/2025/05/00027</p>
+    <div className="min-h-screen flex justify-center items-start p-6 bg-white">
+      <div className="w-full max-w-3xl bg-white border rounded-3xl p-10 shadow-sm">
 
-      <div style={styles.card}>
-        {/* TABEL INFO */}
-        <table style={styles.table}>
-          <tbody>
-            <tr><td>Nama lengkap</td><td>Ahmad Fadli</td></tr>
-            <tr><td>Email</td><td>ahmad.fadli@gmail.com</td></tr>
-            <tr><td>Nomor HP</td><td>08123456789</td></tr>
-            <tr><td>Nama kelas</td><td>Kelas A Tahfidz (online)</td></tr>
-            <tr><td>Jadwal</td><td>Senin & Rabu, 19.00 – 20.30 WIB</td></tr>
-            <tr><td>Biaya pendaftaran</td><td>Rp 50.000</td></tr>
-            <tr><td>Biaya bulanan</td><td>Rp 100.000</td></tr>
-            <tr><td>Total</td><td><b>Rp 150.000</b></td></tr>
-            <tr><td>Transfer Bank</td><td>Bank BCA</td></tr>
-            <tr><td>No. Rekening</td><td>1234567890 a.n. Kahfi Education</td></tr>
-            <tr><td>Tanggal pembayaran</td><td>10 Juni 2025</td></tr>
-            <tr><td>Status</td><td><b>Lunas</b></td></tr>
-          </tbody>
-        </table>
+        {/* Title */}
+        <h1 className="text-4xl font-bold mb-2">Invoice</h1>
+        <p className="text-gray-700 mb-6">INV/2025/05/00027</p>
 
-        {/* UPLOAD */}
-        <label style={styles.uploadBox}>
-          <span>📤 Upload bukti pembayaran</span>
-          <input type="file" hidden onChange={handleUpload} />
-        </label>
+        {/* Card */}
+        <div className="border rounded-2xl p-8">
 
-        {bukti && (
-          <p style={{ textAlign: "center", marginTop: 5 }}>
-            File: <b>{bukti.name}</b>
-          </p>
-        )}
+          {/* Table */}
+          <div className="grid grid-cols-2 gap-y-3 text-sm">
 
-        {/* BUTTON KIRIM */}
-        <button style={styles.sendBtn}>Kirim</button>
+            <p className="text-gray-600">Nama lengkap</p>
+            <p className="text-right font-medium">Ahmad Fadli</p>
+
+            <p className="text-gray-600">Email</p>
+            <p className="text-right font-medium">ahmad.fadli@gmail.com</p>
+
+            <p className="text-gray-600">Nomor HP</p>
+            <p className="text-right font-medium">08123456789</p>
+
+            <p className="text-gray-600">Nama kelas</p>
+            <p className="text-right font-medium">Kelas A Tahfidz (online)</p>
+
+            <p className="text-gray-600">Jadwal</p>
+            <p className="text-right font-medium">Senin & Rabu, 19.00 - 20.30 WIB</p>
+
+            <p className="text-gray-600">Biaya pendaftaran</p>
+            <p className="text-right font-medium">Rp 50.000</p>
+
+            <p className="text-gray-600">Biaya bulanan</p>
+            <p className="text-right font-medium">Rp 100.000</p>
+
+            <p className="text-gray-600">Total</p>
+            <p className="text-right font-medium">Rp 150.000</p>
+
+            <p className="text-gray-600">Transfer Bank</p>
+            <p className="text-right font-medium">Bank BCA</p>
+
+            <p className="text-gray-600">No. Rekening</p>
+            <p className="text-right font-medium">1234567890 a.n Kahfi Education</p>
+
+            <p className="text-gray-600">Tanggal pembayaran</p>
+            <p className="text-right font-medium">10 Juni 2025</p>
+
+            <p className="text-gray-600">Status</p>
+            <p className="text-right font-medium">Lunas</p>
+          </div>
+
+          {/* Button */}
+          <button
+            className="w-full mt-8 bg-green-600 text-white py-3 rounded-full text-lg font-semibold hover:bg-green-700"
+            onClick={handleSubmit}
+          >
+            Kirim
+          </button>
+        </div>
       </div>
+
+      {/* Success Popup */}
+      <Dialog open={openSuccess} maxWidth="xs" fullWidth>
+        <DialogContent sx={{ textAlign: "center", py: 4 }}>
+          <CheckCircleIcon sx={{ fontSize: 80, color: "#10B981", mb: 2 }} />
+          <Typography variant="h5" fontWeight="bold" mb={1}>
+            Pembayaran Berhasil!
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Anda akan diarahkan ke halaman utama dalam 5 detik...
+          </Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+          <Button
+            onClick={() => navigate("/siswa")}
+            variant="contained"
+            sx={{
+              backgroundColor: "#10B981",
+              px: 4,
+              borderRadius: 2,
+              "&:hover": { backgroundColor: "#059669" },
+            }}
+          >
+            Kembali Sekarang
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
-
-const styles = {
-  page: {
-    padding: "30px 20px",
-    background: "#f6fff8",
-    minHeight: "100vh",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 700,
-    textAlign: "center",
-  },
-  kode: {
-    textAlign: "center",
-    marginBottom: 30,
-    fontWeight: 600,
-  },
-  card: {
-    width: "70%",
-    margin: "0 auto",
-    padding: 25,
-    border: "2px solid #ccc",
-    borderRadius: 16,
-    background: "#fff",
-  },
-  table: {
-    width: "100%",
-    marginBottom: 25,
-    fontSize: 16,
-    borderCollapse: "separate",
-    borderSpacing: "0 8px",
-  },
-  uploadBox: {
-    width: "100%",
-    border: "1.5px dashed #777",
-    borderRadius: 12,
-    padding: 15,
-    textAlign: "center",
-    cursor: "pointer",
-    marginBottom: 20,
-    background: "#f9f9f9",
-    fontWeight: 600,
-  },
-  sendBtn: {
-    width: "100%",
-    padding: 12,
-    borderRadius: 10,
-    background: "#008b47",
-    color: "#fff",
-    border: "none",
-    fontWeight: 700,
-    cursor: "pointer",
-  },
-};

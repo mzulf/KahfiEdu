@@ -67,6 +67,10 @@ export default function KelasSiswa() {
     navigate("/siswa/kelas/detail", { state: { course } });
   };
 
+  const handleDaftarProgram = () => {
+    navigate("/siswa/kelas/pilih-program");
+  };
+
   return (
     <Box sx={{ backgroundColor: "#F5F5F5", minHeight: "100vh", pb: 4 }}>
       <Container maxWidth="lg" sx={{ pt: 4 }}>
@@ -100,6 +104,7 @@ export default function KelasSiswa() {
           </Select>
 
           <Button
+            onClick={handleDaftarProgram}
             variant="contained"
             sx={{
               backgroundColor: "#10B981",
