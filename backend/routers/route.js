@@ -1,9 +1,10 @@
+// routers/route.js
 const express = require('express');
 const router = express.Router();
 const { validateToken } = require('../middlewares/authMiddleware.js');
 const validateDataUser = require('../helpers/validationDataUser.js');
 
-// Route imports
+// -------------------- Route imports --------------------
 const {
     authRoute,
     importRoute,
@@ -29,37 +30,47 @@ const {
     jobRoute,
 } = require('./routeImports.js');
 
-// Public routes
+// ==================== MATERI ROUTE ====================
+const materiRoute = require('./materiRoute'); // ⬅️ HARUS SESUAI NAMA FILE
+
+// -------------------- PUBLIC ROUTES --------------------
+// tanpa token
 router.use('/auth', authRoute);
-router.use(googleAuthRoute)
+router.use(googleAuthRoute);
+
+// public content
 router.use([
     courseRoute,
     blogRoute,
-    jobRoute
-])
-// Token validation middleware
+    jobRoute,
+]);
+
+// ==================== MATERI PUBLIC ====================
+// GET /api/v1/materi
+// GET /api/v1/materi/:id
+router.use('/materi', materiRoute);
+
+// -------------------- TOKEN VALIDATION --------------------
 router.use((req, res, next) => {
     validateToken(req, res, next);
 });
 
-// User validation route
+// -------------------- USER VALIDATION --------------------
 router.use('/validate/user', validateDataUser);
 
-// Protected routes - Core features
+// -------------------- PROTECTED ROUTES --------------------
 router.use([
     userRoute,
     roleRoute,
     revisionRoute
 ]);
 
-// Protected routes - Payment related
 router.use([
     paymentMethodRoute,
     bankRoute,
     paymentRoute
 ]);
 
-// Protected routes - Educational features
 router.use([
     childrenRoute,
     categoryRoute,
@@ -71,22 +82,19 @@ router.use([
     submissionRoute
 ]);
 
-// Protected routes - Additional features
 router.use([
     regionRoute,
-
 ]);
 
-// Export Import functionality
 router.use([
     importRoute,
     exportRoute
-])
+]);
 
-// Development only routes
+// -------------------- DEV ONLY --------------------
 if (process.env.NODE_ENV === 'development') {
     router.get('/debug/jwt', (req, res) => {
-        const userId = req.user.id;
+        const userId = req.user?.id;
         res.status(200).json({
             success: true,
             userId,
@@ -96,5 +104,13 @@ if (process.env.NODE_ENV === 'development') {
         });
     });
 }
+
+// -------------------- FALLBACK 404 --------------------
+router.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: 'Route not found'
+    });
+});
 
 module.exports = router;

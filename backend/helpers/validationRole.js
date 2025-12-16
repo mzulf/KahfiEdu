@@ -1,165 +1,83 @@
 /**
- * Validates if user is admin and has valid userId
- * @param {string} userRole - User's role name
- * @param {string} userId - User's ID
- * @returns {Object} { isValid: boolean, error?: { status: number, message: string } }
+ * Helper untuk validasi role & userId
+ */
+const baseValidation = (userRole, userId, allowedRoles = []) => {
+    if (!userRole) {
+        return {
+            isValid: false,
+            error: {
+                status: 403,
+                message: "Role tidak ditemukan"
+            }
+        };
+    }
+
+    if (!userId) {
+        return {
+            isValid: false,
+            error: {
+                status: 400,
+                message: "Token User tidak ditemukan"
+            }
+        };
+    }
+
+    const role = userRole.toLowerCase();
+
+    if (!allowedRoles.includes(role)) {
+        return {
+            isValid: false,
+            error: {
+                status: 403,
+                message: "Access denied"
+            }
+        };
+    }
+
+    return { isValid: true, userRole: role, userId };
+};
+
+/**
+ * ADMIN ONLY
  */
 const isAdmin = (userRole, userId) => {
-    const lowerCaseRole = userRole.toLowerCase();
-
-    if (lowerCaseRole !== "admin") {
-        return {
-            isValid: false,
-            error: {
-                status: 403,
-                message: "Access denied"
-            }
-        };
-    }
-
-    if (!userId) {
-        return {
-            isValid: false,
-            error: {
-                status: 400,
-                message: "Token User tidak ditemukan"
-            }
-        };
-    }
-
-    return { isValid: true, userId, userRole };
+    return baseValidation(userRole, userId, ["admin"]);
 };
 
+/**
+ * ADMIN OR TEACHER
+ */
 const isAdminOrTeacher = (userRole, userId) => {
-    const lowerCaseRole = userRole.toLowerCase();
-
-    if (lowerCaseRole !== "admin" && lowerCaseRole !== "teacher") {
-        return {
-            isValid: false,
-            error: {
-                status: 403,
-                message: "Access denied"
-            }
-        };
-    }
-
-    if (!userId) {
-        return {
-            isValid: false,
-            error: {
-                status: 400,
-                message: "Token User tidak ditemukan"
-            }
-        };
-    }
-
-    return { isValid: true, userId, userRole };
+    return baseValidation(userRole, userId, ["admin", "teacher"]);
 };
 
+/**
+ * PARENT ONLY
+ */
 const isParent = (userRole, userId) => {
-    const lowerCaseRole = userRole.toLowerCase();
+    return baseValidation(userRole, userId, ["parent"]);
+};
 
-    if (lowerCaseRole !== "parent") {
-        return {
-            isValid: false,
-            error: {
-                status: 403,
-                message: "Access denied"
-            }
-        };
-    }
-
-    if (!userId) {
-        return {
-            isValid: false,
-            error: {
-                status: 400,
-                message: "Token User tidak ditemukan"
-            }
-        };
-    }
-
-    return { isValid: true, userId, userRole };
-}
-
+/**
+ * PARENT OR ADMIN
+ */
 const isParentOrAdmin = (userRole, userId) => {
-    const lowerCaseRole = userRole.toLowerCase();
+    return baseValidation(userRole, userId, ["parent", "admin"]);
+};
 
-    if (lowerCaseRole !== "parent" && lowerCaseRole !== "admin") {
-        return {
-            isValid: false,
-            error: {
-                status: 403,
-                message: "Access denied"
-            }
-        };
-    }
-
-    if (!userId) {
-        return {
-            isValid: false,
-            error: {
-                status: 400,
-                message: "Token User tidak ditemukan"
-            }
-        };
-    }
-
-    return { isValid: true, userId, userRole };
-}
-
+/**
+ * PARENT OR ADMIN OR TEACHER
+ */
 const isParentOrAdminOrTeacher = (userRole, userId) => {
-    const lowerCaseRole = userRole.toLowerCase();
+    return baseValidation(userRole, userId, ["parent", "admin", "teacher"]);
+};
 
-    if (lowerCaseRole !== "parent" && lowerCaseRole !== "admin" && lowerCaseRole !== "teacher") {
-        return {
-            isValid: false,
-            error: {
-                status: 403,
-                message: "Access denied"
-            }
-        };
-    }
-
-    if (!userId) {
-        return {
-            isValid: false,
-            error: {
-                status: 400,
-                message: "Token User tidak ditemukan"
-            }
-        };
-    }
-
-    return { isValid: true, userId, userRole };
-}
-
+/**
+ * STUDENT OR PARENT
+ */
 const isStudentOrParent = (userRole, userId) => {
-    const lowerCaseRole = userRole.toLowerCase();
-
-    if (lowerCaseRole !== "student" && lowerCaseRole !== "parent") {
-        return {
-            isValid: false,
-            error: {
-                status: 403,
-                message: "Access denied"
-            }
-        };
-    }
-
-    if (!userId) {
-        return {
-            isValid: false,
-            error: {
-                status: 400,
-                message: "Token User tidak ditemukan"
-            }
-        };
-    }
-
-    return { isValid: true, userId, userRole };
-}
-
+    return baseValidation(userRole, userId, ["student", "parent"]);
+};
 
 module.exports = {
     isAdmin,
