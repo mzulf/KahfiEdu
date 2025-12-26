@@ -9,12 +9,13 @@ import {
   Tabs,
   Tab,
   TextField,
-  IconButton
+  IconButton,
+  Chip,
+  Fade
 } from "@mui/material";
-
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { QRCodeCanvas } from "qrcode.react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function BerandaSiswa() {
   const today = new Date();
@@ -34,278 +35,325 @@ export default function BerandaSiswa() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [openAbsensi, setOpenAbsensi] = useState(false);
   const [tabValue, setTabValue] = useState(0);
+  const [alasanIzin, setAlasanIzin] = useState("");
+  const [fileSakit, setFileSakit] = useState(null);
+  const [jamSekarang, setJamSekarang] = useState("");
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setJamSekarang(
+        new Date().toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      );
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const progressList = [
     { nama: "Tugas Menulis", persen: 45, waktu: "Hari ini • 12:41" },
     { nama: "Tugas Belajar", persen: 100, waktu: "Kemarin • 10:00" },
-    { nama: "Tugas Hafalan", persen: 100, waktu: "Jumat • 18:00" },
+    { nama: "Tugas Hafalan", persen: 0, waktu: "Jumat • 18:00" },
   ];
 
+  const getStatus = (persen) => {
+    if (persen === 0) return { label: "Belum Mulai", color: "default" };
+    if (persen < 100) return { label: "Dalam Proses", color: "warning" };
+    return { label: "Selesai", color: "success" };
+  };
+
+  const isSubmitDisabled = () => {
+    if (tabValue === 0) return alasanIzin.trim() === "";
+    if (tabValue === 1) return !fileSakit;
+    return false;
+  };
+
   return (
-    <Container maxWidth="xl" sx={{ mt: 7, mb: 4 }}>
-
-      {/* HEADER */}
-      <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-        Selamat Pagi,
-      </Typography>
-      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-        Nama
-      </Typography>
-
-      {/* KALENDER */}
+    <Box bgcolor="#F9FAFB" minHeight="100vh">
+      {/* ===== BG HEADER ===== */}
       <Box
         sx={{
-          mt: 5,
-          p: 3,
-          borderRadius: 3,
-          border: "1.5px solid #BEBEBE",
-          bgcolor: "white",
+          background: "linear-gradient(135deg, #047857, #34D399)",
+          pt: 3,
+          pb: 8,
+          borderRadius: "0 0 48px 48px",
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: "bold", textAlign: "center" }}>
-          Kalender Per Minggu
-        </Typography>
+        <Container maxWidth="xl">
+          <Typography variant="h4" fontWeight="bold" color="white">
+            Selamat Datang,
+          </Typography>
+          <Typography variant="h5" fontWeight="bold" color="#ECFDF5">
+            Siswa Kahfi
+          </Typography>
+        </Container>
+      </Box>
 
-        <Typography sx={{ textAlign: "center", color: "gray" }}>
-          {namaBulan}
-        </Typography>
-
+      {/* ===== CONTENT ===== */}
+      <Container maxWidth="xl" sx={{ mt: "-90px", mb: 5 }}>
         {/* KALENDER */}
         <Box
           sx={{
-            mt: 3,
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 2,
-            overflowX: "auto",
-            paddingBottom: "10px",
+            mt: 5,
+            p: 4,
+            borderRadius: 4,
+            bgcolor: "white",
+            border: "2px solid #A7F3D0",
+            boxShadow: "0 12px 32px rgba(0,0,0,.18)",
           }}
         >
-          {Array.from({ length: 6 }).map((_, i) => {
-            const date = new Date();
-            date.setDate(tanggalHariIni + i);
-
-            const namaHari = date.toLocaleDateString("id-ID", { weekday: "short" });
-            const tanggal = date.getDate();
-
-            const isSelected = i === selectedIndex;
-
-            return (
-              <Box
-                key={i}
-                onClick={() => setSelectedIndex(i)}
-                sx={{
-                  cursor: "pointer",
-                  width: 110,
-                  height: 135,
-                  borderRadius: 3,
-                  p: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  bgcolor: isSelected ? "#008B47" : "#C4F2D4",
-                  color: isSelected ? "white" : "black",
-                  transition: "0.3s",
-                  flexShrink: 0,
-                }}
-              >
-                <Typography sx={{ fontSize: 16, fontWeight: "bold" }}>
-                  {namaHari}
-                </Typography>
-
-                <Typography sx={{ fontSize: 36, fontWeight: "bold" }}>
-                  {tanggal}
-                </Typography>
-              </Box>
-            );
-          })}
-        </Box>
-      </Box>
-
-      {/* TUGAS + JADWAL */}
-      <Box
-        sx={{
-          mt: 5,
-          display: "flex",
-          gap: 3,
-          flexDirection: { xs: "column", md: "row" },
-        }}
-      >
-        {/* BOX TUGAS */}
-        <Box
-          sx={{
-            flex: 2,
-            p: 3,
-            borderRadius: 3,
-            background: "#C4F2D4",
-            border: "1.5px solid #BEBEBE",
-          }}
-        >
-          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-            Tugas
+          <Typography variant="h5" fontWeight="bold" textAlign="center">
+            Kalender Per Minggu
+          </Typography>
+          <Typography textAlign="center" color="text.secondary">
+            {namaBulan}
           </Typography>
 
-          {progressList.map((item, i) => (
-            <Box key={i} sx={{ mb: 3 }}>
-              <Typography sx={{ fontWeight: "bold" }}>{item.nama}</Typography>
+          <Box
+            sx={{
+              mt: 4,
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "repeat(3, 1fr)",
+                sm: "repeat(4, 1fr)",
+                md: "repeat(6, 1fr)",
+              },
+              gap: 2.5,
+            }}
+          >
+            {Array.from({ length: 6 }).map((_, i) => {
+              const date = new Date();
+              date.setDate(tanggalHariIni + i);
 
-              {/* Progress + Persen */}
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 1 }}>
-                <LinearProgress
-                  variant="determinate"
-                  value={item.persen}
+              const namaHari = date.toLocaleDateString("id-ID", {
+                weekday: "short",
+              });
+              const tanggal = date.getDate();
+              const isSelected = selectedIndex === i;
+
+              return (
+                <Box
+                  key={i}
+                  onClick={() => setSelectedIndex(i)}
                   sx={{
-                    flex: 1,
-                    height: 10,
-                    borderRadius: 5,
-                    backgroundColor: "#E8FFE9",
-                    "& .MuiLinearProgress-bar": {
-                      backgroundColor: "#008B47",
+                    cursor: "pointer",
+                    height: 120,
+                    borderRadius: 4,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    bgcolor: isSelected ? "#047857" : "#ECFDF5",
+                    color: isSelected ? "white" : "#064E3B",
+                    boxShadow: isSelected
+                      ? "0 10px 28px rgba(4,120,87,.45)"
+                      : "0 6px 18px rgba(0,0,0,.15)",
+                    transition: ".25s",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
                     },
                   }}
-                />
-
-                <Typography sx={{ fontWeight: "bold", width: 40, textAlign: "right" }}>
-                  {item.persen}%
-                </Typography>
-              </Box>
-
-              <Typography sx={{ fontSize: 14, mt: 1 }}>
-                {item.waktu}
-              </Typography>
-            </Box>
-          ))}
+                >
+                  <Typography fontWeight="bold">{namaHari}</Typography>
+                  <Typography fontSize={34} fontWeight="bold">
+                    {tanggal}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
         </Box>
 
-        {/* BOX JADWAL */}
+        {/* TUGAS & JADWAL */}
         <Box
-          sx={{
-            flex: 1,
-            p: 3,
-            borderRadius: 3,
-            background: "#C2F5FF",
-            border: "1.5px solid #BEBEBE",
-            height: "fit-content",
-          }}
+          mt={5}
+          display="flex"
+          gap={3}
+          flexDirection={{ xs: "column", md: "row" }}
         >
-          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-            Jadwal Hari Ini
-          </Typography>
+          {/* TUGAS */}
+          <Box
+            flex={2}
+            p={3}
+            borderRadius={4}
+            bgcolor="#ECFDF5"
+            border="2px solid #A7F3D0"
+            boxShadow="0 10px 26px rgba(0,0,0,.18)"
+          >
+            <Typography variant="h6" fontWeight="bold" mb={2}>
+              Tugas
+            </Typography>
 
-          <Typography sx={{ fontSize: 15, mb: 1 }}>Today • {tanggalLengkap}</Typography>
+            {progressList.map((item, i) => {
+              const status = getStatus(item.persen);
+              return (
+                <Box
+                  key={i}
+                  p={2.5}
+                  mb={2}
+                  bgcolor="white"
+                  borderRadius={3}
+                  boxShadow="0 6px 16px rgba(0,0,0,.15)"
+                >
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography fontWeight="bold">{item.nama}</Typography>
+                    <Chip size="small" label={status.label} color={status.color} />
+                  </Box>
 
-          <Typography sx={{ fontWeight: "bold", fontSize: 20, mb: 3 }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={item.persen}
+                    sx={{
+                      mt: 1,
+                      height: 8,
+                      borderRadius: 5,
+                      "& .MuiLinearProgress-bar": {
+                        backgroundColor: "#047857",
+                      },
+                    }}
+                  />
+
+                  <Typography fontSize={13} color="text.secondary" mt={1}>
+                    {item.waktu}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+
+          {/* JADWAL */}
+          <Box
+            flex={1}
+            p={2.5}
+            borderRadius={4}
+            bgcolor="#E0F2FE"
+            border="2px solid #7DD3FC"
+            boxShadow="0 8px 22px rgba(0,0,0,.16)"
+            alignSelf="flex-start"
+          >
+            <Typography variant="h6" fontWeight="bold">
+              Jadwal Hari Ini
+            </Typography>
+
+            <Typography fontSize={14} color="text.secondary" mb={1}>
+              Today • {tanggalLengkap}
+            </Typography>
+
+            <Typography fontSize={18} fontWeight="bold" mb={2}>
+              Tahfidz Juz 1
+            </Typography>
+
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{
+                backgroundColor: "#047857",
+                fontWeight: "bold",
+                borderRadius: "999px",
+                py: 1.2,
+                fontSize: 14,
+              }}
+              onClick={() => setOpenAbsensi(true)}
+            >
+              Attend
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+
+      {/* POPUP ABSENSI (TETAP) */}
+      <Dialog
+        open={openAbsensi}
+        fullWidth
+        maxWidth="md"
+        TransitionComponent={Fade}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            boxShadow: "0 22px 60px rgba(0,0,0,.35)",
+          },
+        }}
+      >
+        <DialogContent>
+          <Box display="flex" alignItems="center" gap={2} mb={3}>
+            <IconButton onClick={() => setOpenAbsensi(false)}>
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h5" fontWeight="bold">
+              Absensi Kelas
+            </Typography>
+          </Box>
+
+          <Typography fontWeight="bold" fontSize={20}>
             Tahfidz Juz 1
           </Typography>
-
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: "#008B47",
-              fontWeight: "bold",
-              width: "100%",
-              borderRadius: "30px",
-              py: 1.3,
-              "&:hover": { backgroundColor: "#006633" },
-            }}
-            onClick={() => setOpenAbsensi(true)}
-          >
-            Attend
-          </Button>
-        </Box>
-      </Box>
-
-      {/* POPUP ABSENSI */}
-      <Dialog open={openAbsensi} onClose={() => setOpenAbsensi(false)} fullWidth maxWidth="md">
-        <DialogContent>
-
-          {/* BACK */}
-          <IconButton onClick={() => setOpenAbsensi(false)}>
-            <ArrowBackIcon />
-          </IconButton>
-
-          <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
-            Jadwal Hari Ini
+          <Typography color="text.secondary">
+            {tanggalLengkap} • {jamSekarang}
           </Typography>
 
-          <Typography sx={{ fontSize: 22, fontWeight: "bold" }}>
-            Kelas Tahfidz Juz 1
-          </Typography>
-
-          <Typography sx={{ mb: 3 }}>Nama guru: Ustadzah</Typography>
-
-          {/* TAB */}
           <Tabs
+            centered
             value={tabValue}
             onChange={(e, v) => setTabValue(v)}
-            centered
-            sx={{ mb: 3 }}
+            sx={{
+              my: 3,
+              "& .Mui-selected": { color: "#047857" },
+              "& .MuiTabs-indicator": {
+                height: 4,
+                borderRadius: 2,
+                backgroundColor: "#047857",
+              },
+            }}
           >
             <Tab label="Izin" />
             <Tab label="Sakit" />
             <Tab label="Hadir" />
           </Tabs>
 
-          {/* IZIN */}
           {tabValue === 0 && (
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-              <TextField
-                multiline
-                rows={3}
-                placeholder="Berikan alasan izin"
-                fullWidth
-                sx={{ maxWidth: 400 }}
-              />
-            </Box>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              placeholder="Tuliskan alasan izin..."
+              value={alasanIzin}
+              onChange={(e) => setAlasanIzin(e.target.value)}
+            />
           )}
 
-          {/* SAKIT */}
           {tabValue === 1 && (
-            <Box sx={{ textAlign: "center" }}>
-              <Button
-                variant="outlined"
-                component="label"
-                sx={{ p: 3, borderRadius: 3 }}
-              >
-                Upload bukti surat dokter
+            <Box textAlign="center">
+              <Button component="label" variant="outlined" sx={{ p: 3 }}>
+                Upload Surat Dokter
                 <input hidden type="file" />
               </Button>
             </Box>
           )}
 
-          {/* HADIR */}
           {tabValue === 2 && (
-            <Box sx={{ textAlign: "center" }}>
-              <QRCodeCanvas value="ABSEN_TAHFIDZ_1" size={200} />
-              <Typography sx={{ mt: 1 }}>Scan untuk hadir</Typography>
+            <Box textAlign="center">
+              <QRCodeCanvas value="ABSEN_TAHFIDZ_1" size={220} />
             </Box>
           )}
 
-          {/* TOMBOL KIRIM — ADA SEKARANG */}
-          <Box sx={{ textAlign: "center", mt: 4, mb: 2 }}>
+          <Box textAlign="center" mt={4}>
             <Button
               variant="contained"
+              disabled={isSubmitDisabled()}
               sx={{
-                backgroundColor: "#008B47",
+                backgroundColor: "#047857",
                 fontWeight: "bold",
-                px: 5,
-                py: 1.5,
-                borderRadius: "25px",
-                "&:hover": { backgroundColor: "#006633" }
-              }}
-              onClick={() => {
-                console.log("Absensi terkirim");
-                setOpenAbsensi(false);
+                px: 6,
+                py: 1.4,
+                borderRadius: "30px",
               }}
             >
               Kirim
             </Button>
           </Box>
-
         </DialogContent>
       </Dialog>
-
-    </Container>
+    </Box>
   );
 }

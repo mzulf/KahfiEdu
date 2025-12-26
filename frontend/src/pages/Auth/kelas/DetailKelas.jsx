@@ -23,9 +23,7 @@ export default function DetailKelas() {
   if (!kelas) {
     return (
       <Box sx={{ p: 4, textAlign: "center" }}>
-        <Typography variant="h6" mb={2}>
-          Data kelas tidak ditemukan
-        </Typography>
+        <Typography mb={2}>Data kelas tidak ditemukan</Typography>
         <IconButton onClick={() => navigate("/siswa/kelas")}>
           <ArrowBackIcon />
         </IconButton>
@@ -33,38 +31,95 @@ export default function DetailKelas() {
     );
   }
 
+  // 🔧 Default progress (nanti bisa dari API)
+  const progress = {
+    absen: 50,
+    tugas: 50,
+    hafalan: 50,
+    score: 85,
+    grade: "A"
+  };
+
   return (
-    <Box sx={{ backgroundColor: "#F5F5F5", minHeight: "100vh", pb: 4 }}>
-      <Container maxWidth="md" sx={{ pt: 4 }}>
+    <Box sx={{ backgroundColor: "#F7F7F7", minHeight: "100vh", py: 4 }}>
+      <Container maxWidth="md">
+        {/* Back */}
         <IconButton
           onClick={() => navigate(-1)}
-          sx={{ mb: 3, backgroundColor: "white", border: "1px solid #E0E0E0" }}
+          sx={{
+            mb: 3,
+            border: "1px solid #D1D5DB",
+            backgroundColor: "white"
+          }}
         >
           <ArrowBackIcon />
         </IconButton>
 
-        <Typography variant="h5" fontWeight="bold" mb={4}>
-          {kelas.nama}
+        {/* Title */}
+        <Typography fontSize={22} fontWeight="bold" mb={3}>
+          {kelas.title}
         </Typography>
 
-        <Card sx={{ borderRadius: 3, border: "1px solid #E0E0E0" }}>
+        {/* Main Card */}
+        <Card
+          sx={{
+            borderRadius: 3,
+            border: "1px solid #D1D5DB"
+          }}
+        >
           <CardContent sx={{ p: 4 }}>
-            <Typography variant="body2" color="text.secondary" mb={1}>
-              {kelas.level || "Pemula"} • Aktif
+            {/* Info */}
+            <Typography fontSize={14} color="text.secondary" mb={1}>
+              2025, Periode ganjil
             </Typography>
 
-            <ProgressItem icon={<CheckCircleIcon />} label="Progress absen" value={50} />
-            <ProgressItem icon={<AssignmentIcon />} label="Progress tugas" value={50} />
-            <ProgressItem icon={<MenuBookIcon />} label="Progress hafalan" value={50} />
-
-            <Box sx={{ border: "1px solid #E0E0E0", borderRadius: 2, p: 2.5, mt: 2 }}>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <GradeIcon color="success" />
-                  <Typography fontWeight="500">Grade</Typography>
-                </Box>
-                <Typography fontWeight="bold">A</Typography>
+            <Typography fontSize={14} mb={3}>
+              {kelas.kelas} •{" "}
+              <Box component="span" sx={{ color: "#16A34A", fontWeight: 500 }}>
+                Aktif
               </Box>
+            </Typography>
+
+            {/* Progress */}
+            <ProgressItem
+              icon={<CheckCircleIcon sx={{ color: "#16A34A" }} />}
+              label="Progress absen"
+              value={progress.absen}
+            />
+
+            <ProgressItem
+              icon={<AssignmentIcon sx={{ color: "#16A34A" }} />}
+              label="Progress tugas"
+              value={progress.tugas}
+            />
+
+            <ProgressItem
+              icon={<MenuBookIcon sx={{ color: "#16A34A" }} />}
+              label="Progress hafalan"
+              value={progress.hafalan}
+            />
+
+            {/* Grade */}
+            <Box
+              sx={{
+                border: "1px solid #D1D5DB",
+                borderRadius: 2,
+                px: 3,
+                py: 2.5,
+                mt: 2,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
+            >
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                <GradeIcon sx={{ color: "#16A34A" }} />
+                <Typography fontWeight={500}>Grade</Typography>
+              </Box>
+
+              <Typography fontWeight="bold">
+                Score: {progress.score} &nbsp; Grade: {progress.grade}
+              </Typography>
             </Box>
           </CardContent>
         </Card>
@@ -73,17 +128,43 @@ export default function DetailKelas() {
   );
 }
 
+/* ===================== */
+/* Reusable Progress Row */
+/* ===================== */
 function ProgressItem({ icon, label, value }) {
   return (
-    <Box sx={{ border: "1px solid #E0E0E0", borderRadius: 2, p: 2.5, mb: 2 }}>
+    <Box
+      sx={{
+        border: "1px solid #D1D5DB",
+        borderRadius: 2,
+        px: 3,
+        py: 2,
+        mb: 2
+      }}
+    >
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-        <Box sx={{ display: "flex", gap: 1 }}>
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
           {icon}
-          <Typography>{label}</Typography>
+          <Typography fontSize={14}>{label}</Typography>
         </Box>
-        <Typography fontWeight="bold">{value}%</Typography>
+        <Typography fontSize={14} fontWeight="bold">
+          {value}%
+        </Typography>
       </Box>
-      <LinearProgress variant="determinate" value={value} />
+
+      <LinearProgress
+        variant="determinate"
+        value={value}
+        sx={{
+          height: 6,
+          borderRadius: 5,
+          backgroundColor: "#DCFCE7",
+          "& .MuiLinearProgress-bar": {
+            backgroundColor: "#16A34A",
+            borderRadius: 5
+          }
+        }}
+      />
     </Box>
   );
 }

@@ -1,16 +1,15 @@
 // src/pages/Auth/pendaftaran/FormProgram.jsx
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { 
-  Box, 
-  Typography, 
+import {
+  Box,
+  Typography,
   Card,
   Button,
   TextField,
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
   ToggleButtonGroup,
   ToggleButton,
   Container
@@ -20,154 +19,121 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 export default function FormProgram() {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Ambil data dari page sebelumnya
   const { program, kelas } = location.state || {};
 
-  // Form state
-  const [kategori, setKategori] = useState("umum"); // umum, anak, orang-tua
+  const [kategori, setKategori] = useState("umum");
   const [formData, setFormData] = useState({
     email: "",
     privatUntuk: "",
     guruLaki: "",
     privatBerapa: ""
   });
+  const [errors, setErrors] = useState({});
 
-  const handleKategoriChange = (event, newKategori) => {
-    if (newKategori !== null) {
-      setKategori(newKategori);
-    }
+  /* ===================== */
+  /* Handlers */
+  /* ===================== */
+  const handleKategoriChange = (_, newKategori) => {
+    if (newKategori) setKategori(newKategori);
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const handleBack = () => {
-    navigate("/siswa/pilih-kelas", { state: { program } });
+    navigate("/siswa/kelas/detail-pilih-program", {
+      state: { program, kelas }
+    });
+  };
+
+  /* ===================== */
+  /* Validation */
+  /* ===================== */
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.email) {
+      newErrors.email = "Email wajib diisi";
+    } else if (!isValidEmail(formData.email)) {
+      newErrors.email = "Format email tidak valid";
+    }
+
+    if (!formData.privatUntuk) newErrors.privatUntuk = "Wajib dipilih";
+    if (!formData.guruLaki) newErrors.guruLaki = "Wajib dipilih";
+    if (!formData.privatBerapa) newErrors.privatBerapa = "Wajib dipilih";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleLanjut = () => {
-    // Validasi
-    if (!formData.email || !formData.privatUntuk || !formData.guruLaki || !formData.privatBerapa) {
-      alert("Mohon lengkapi semua field");
-      return;
-    }
+    if (!validateForm()) return;
 
-    // Simpan data & lanjut ke step berikutnya
     navigate("/siswa/pendaftaran/daftar-anak", {
-      state: {
-        program,
-        kelas,
-        kategori,
-        formProgram: formData
-      }
+      state: { program, kelas, kategori, formProgram: formData }
     });
   };
 
   return (
     <Box sx={{ backgroundColor: "#F5F5F5", minHeight: "100vh", pb: 4 }}>
-      
-      {/* Header dengan Wave */}
+      {/* Header */}
       <Box
         sx={{
           backgroundColor: "#A7F3D0",
-          borderBottomLeftRadius: "50% 30px",
-          borderBottomRightRadius: "50% 30px",
-          pb: 4,
-          pt: 2
+          borderBottomLeftRadius: "50% 40px",
+          borderBottomRightRadius: "50% 40px",
+          pb: 5
         }}
-      >
-        <Container maxWidth="lg">
-          {/* Logo/Title bisa ditambahkan di sini */}
-        </Container>
-      </Box>
+      />
 
-      <Container maxWidth="md" sx={{ mt: -2 }}>
-        
-        <Typography variant="h5" fontWeight="bold" mb={3} textAlign="center">
+      <Container maxWidth="md" sx={{ mt: -3 }}>
+        <Typography variant="h5" fontWeight="bold" mb={4} textAlign="center">
           PENDAFTARAN PROGRAM PRIVAT VISIT HOME
         </Typography>
 
-        {/* Kategori Toggle Buttons */}
+        {/* Toggle */}
         <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
           <ToggleButtonGroup
             value={kategori}
             exclusive
             onChange={handleKategoriChange}
-            sx={{ backgroundColor: "white", borderRadius: 8 }}
+            sx={{
+              backgroundColor: "white",
+              borderRadius: 999,
+              p: 0.5
+            }}
           >
-            <ToggleButton 
-              value="umum"
-              sx={{
-                px: 3,
-                py: 1,
-                borderRadius: "25px !important",
-                textTransform: "none",
-                "&.Mui-selected": {
-                  backgroundColor: "#10B981",
-                  color: "white",
-                  "&:hover": {
-                    backgroundColor: "#059669"
+            {["umum", "anak", "orang-tua"].map((item) => (
+              <ToggleButton
+                key={item}
+                value={item}
+                sx={{
+                  px: 4,
+                  py: 1,
+                  borderRadius: 999,
+                  textTransform: "none",
+                  fontWeight: 500,
+                  "&.Mui-selected": {
+                    backgroundColor: "#10B981",
+                    color: "white",
+                    "&:hover": { backgroundColor: "#059669" }
                   }
-                }
-              }}
-            >
-              <CheckCircleIcon sx={{ mr: 1, fontSize: 18 }} />
-              Umum
-            </ToggleButton>
-            <ToggleButton 
-              value="anak"
-              sx={{
-                px: 3,
-                py: 1,
-                borderRadius: "25px !important",
-                textTransform: "none",
-                "&.Mui-selected": {
-                  backgroundColor: "#10B981",
-                  color: "white",
-                  "&:hover": {
-                    backgroundColor: "#059669"
-                  }
-                }
-              }}
-            >
-              Anak
-            </ToggleButton>
-            <ToggleButton 
-              value="orang-tua"
-              sx={{
-                px: 3,
-                py: 1,
-                borderRadius: "25px !important",
-                textTransform: "none",
-                "&.Mui-selected": {
-                  backgroundColor: "#10B981",
-                  color: "white",
-                  "&:hover": {
-                    backgroundColor: "#059669"
-                  }
-                }
-              }}
-            >
-              Orang Tua
-            </ToggleButton>
+                }}
+              >
+                {item === "umum" && <CheckCircleIcon sx={{ mr: 1, fontSize: 18 }} />}
+                {item.replace("-", " ").toUpperCase()}
+              </ToggleButton>
+            ))}
           </ToggleButtonGroup>
         </Box>
 
-        {/* Form Card */}
-        <Card
-          sx={{
-            borderRadius: 3,
-            border: "1px solid #E0E0E0",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            p: 4,
-            mb: 3
-          }}
-        >
+        {/* Form */}
+        <Card sx={{ borderRadius: 3, p: 4 }}>
           <Box
             sx={{
               display: "grid",
@@ -175,113 +141,66 @@ export default function FormProgram() {
               gap: 3
             }}
           >
-            {/* Email */}
-            <Box>
-              <Typography variant="body2" fontWeight="500" mb={1}>
-                Email<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Masukkan email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: 2
-                  }
-                }}
-              />
-            </Box>
+            <TextField
+              label="Email *"
+              fullWidth
+              value={formData.email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              error={Boolean(errors.email)}
+              helperText={errors.email}
+            />
 
-            {/* Privat untuk berapa anak */}
-            <Box>
-              <Typography variant="body2" fontWeight="500" mb={1}>
-                Privat untuk berapa anak?<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <FormControl fullWidth>
-                <Select
-                  value={formData.privatUntuk}
-                  onChange={(e) => handleInputChange("privatUntuk", e.target.value)}
-                  displayEmpty
-                  sx={{ borderRadius: 2 }}
-                >
-                  <MenuItem value="" disabled>Pilih jumlah</MenuItem>
-                  <MenuItem value="1">1 Anak</MenuItem>
-                  <MenuItem value="2">2 Anak</MenuItem>
-                  <MenuItem value="3">3 Anak</MenuItem>
-                  <MenuItem value="4+">4+ Anak</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
+            <SelectField
+              label="Privat untuk berapa anak?"
+              value={formData.privatUntuk}
+              error={errors.privatUntuk}
+              onChange={(v) => handleInputChange("privatUntuk", v)}
+              options={[
+                { value: "1", label: "1 Anak" },
+                { value: "2", label: "2 Anak" },
+                { value: "3", label: "3 Anak" },
+                { value: "4+", label: "4+ Anak" }
+              ]}
+            />
 
-            {/* Guru Laki-laki atau perempuan */}
-            <Box>
-              <Typography variant="body2" fontWeight="500" mb={1}>
-                Guru Laki-laki atau perempuan<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <FormControl fullWidth>
-                <Select
-                  value={formData.guruLaki}
-                  onChange={(e) => handleInputChange("guruLaki", e.target.value)}
-                  displayEmpty
-                  sx={{ borderRadius: 2 }}
-                >
-                  <MenuItem value="" disabled>Pilih gender guru</MenuItem>
-                  <MenuItem value="laki-laki">Laki-laki</MenuItem>
-                  <MenuItem value="perempuan">Perempuan</MenuItem>
-                  <MenuItem value="tidak-masalah">Tidak Masalah</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
+            <SelectField
+              label="Guru Laki-laki / Perempuan"
+              value={formData.guruLaki}
+              error={errors.guruLaki}
+              onChange={(v) => handleInputChange("guruLaki", v)}
+              options={[
+                { value: "laki-laki", label: "Laki-laki" },
+                { value: "perempuan", label: "Perempuan" },
+                { value: "tidak-masalah", label: "Tidak Masalah" }
+              ]}
+            />
 
-            {/* Privat berapa kali pertemuan */}
-            <Box>
-              <Typography variant="body2" fontWeight="500" mb={1}>
-                Privat berapa kali pertemuan?<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <FormControl fullWidth>
-                <Select
-                  value={formData.privatBerapa}
-                  onChange={(e) => handleInputChange("privatBerapa", e.target.value)}
-                  displayEmpty
-                  sx={{ borderRadius: 2 }}
-                >
-                  <MenuItem value="" disabled>Pilih jumlah pertemuan</MenuItem>
-                  <MenuItem value="1x">1x Seminggu</MenuItem>
-                  <MenuItem value="2x">2x Seminggu</MenuItem>
-                  <MenuItem value="3x">3x Seminggu</MenuItem>
-                  <MenuItem value="4x">4x Seminggu</MenuItem>
-                  <MenuItem value="5x">5x Seminggu</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
+            <SelectField
+              label="Privat berapa kali pertemuan?"
+              value={formData.privatBerapa}
+              error={errors.privatBerapa}
+              onChange={(v) => handleInputChange("privatBerapa", v)}
+              options={[
+                { value: "1x", label: "1x Seminggu" },
+                { value: "2x", label: "2x Seminggu" },
+                { value: "3x", label: "3x Seminggu" },
+                { value: "4x", label: "4x Seminggu" }
+              ]}
+            />
           </Box>
         </Card>
 
-        {/* Progress Indicator */}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 3 }}>
-          <Box sx={{ width: 80, height: 4, backgroundColor: "#10B981", borderRadius: 2 }} />
-          <Box sx={{ width: 80, height: 4, backgroundColor: "#D1D5DB", borderRadius: 2 }} />
-          <Box sx={{ width: 80, height: 4, backgroundColor: "#D1D5DB", borderRadius: 2 }} />
-        </Box>
-
         {/* Buttons */}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 4 }}>
           <Button
             onClick={handleBack}
-            variant="outlined"
             sx={{
-              borderRadius: 8,
-              px: 4,
-              py: 1.5,
-              textTransform: "none",
-              fontSize: "16px",
-              borderColor: "#E0E0E0",
+              px: 5,
+              py: 1.4,
+              borderRadius: 999,
+              backgroundColor: "#E5E7EB",
               color: "#374151",
-              "&:hover": {
-                borderColor: "#9CA3AF",
-                backgroundColor: "#F9FAFB"
-              }
+              "&:hover": { backgroundColor: "#D1D5DB" }
             }}
           >
             Kembali
@@ -289,24 +208,43 @@ export default function FormProgram() {
 
           <Button
             onClick={handleLanjut}
-            variant="contained"
             sx={{
-              borderRadius: 8,
-              px: 4,
-              py: 1.5,
-              textTransform: "none",
-              fontSize: "16px",
+              px: 5,
+              py: 1.4,
+              borderRadius: 999,
               backgroundColor: "#10B981",
-              "&:hover": {
-                backgroundColor: "#059669"
-              }
+              color: "white",
+              "&:hover": { backgroundColor: "#059669" }
             }}
           >
             Lanjut
           </Button>
         </Box>
-
       </Container>
     </Box>
+  );
+}
+
+/* ===================== */
+/* Helper */
+function SelectField({ label, value, onChange, options, error }) {
+  return (
+    <FormControl fullWidth error={Boolean(error)}>
+      <Select value={value} displayEmpty onChange={(e) => onChange(e.target.value)}>
+        <MenuItem value="" disabled>
+          {label}
+        </MenuItem>
+        {options.map((opt) => (
+          <MenuItem key={opt.value} value={opt.value}>
+            {opt.label}
+          </MenuItem>
+        ))}
+      </Select>
+      {error && (
+        <Typography variant="caption" color="error">
+          {error}
+        </Typography>
+      )}
+    </FormControl>
   );
 }

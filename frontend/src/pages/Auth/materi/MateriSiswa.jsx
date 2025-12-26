@@ -1,4 +1,13 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  Container,
+  Box,
+  Typography,
+  Paper,
+  List,
+  ListItemButton,
+  Skeleton,
+} from "@mui/material";
 import materiService from "../../../services/materiService";
 
 export default function MateriSiswa() {
@@ -14,10 +23,10 @@ export default function MateriSiswa() {
           limit: 100,
         });
 
-        setMateriList(res.data);
-        setSelectedMateri(res.data[0] || null);
-      } catch (error) {
-        console.error("Gagal mengambil materi:", error);
+        setMateriList(res.data || []);
+        setSelectedMateri(res.data?.[0] || null);
+      } catch (err) {
+        console.error("Gagal mengambil materi", err);
       } finally {
         setLoading(false);
       }
@@ -26,23 +35,13 @@ export default function MateriSiswa() {
     fetchMateri();
   }, []);
 
-  /* ================= LOADING ================= */
-  if (loading) {
-    return (
-      <div style={styles.pageWrapper}>
-        <div style={styles.container}>
-          <SkeletonLeft />
-          <SkeletonRight />
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <MateriSkeleton />;
 
   if (!materiList.length) {
     return (
-      <div style={styles.center}>
-        <p>Materi belum tersedia</p>
-      </div>
+      <Box minHeight="60vh" display="flex" justifyContent="center" alignItems="center">
+        <Typography color="text.secondary">Materi belum tersedia</Typography>
+      </Box>
     );
   }
 
@@ -51,173 +50,161 @@ export default function MateriSiswa() {
     : null;
 
   return (
-    <div style={styles.pageWrapper}>
-      <div style={styles.container}>
-        {/* ================= LEFT ================= */}
-        <div style={styles.leftBox}>
-          {imageUrl && (
-            <img
-              src={imageUrl}
-              alt="materi"
-              loading="lazy"
-              style={styles.mainImage}
-            />
-          )}
+    <Box sx={{ position: "relative" }}>
+      {/* ================= BG GRADIENT ================= */}
+      <Box
+        sx={{
+          height: { xs: 120, md: 170 },
+          background: "linear-gradient(135deg, #047857, #34D399)",
+          borderRadius: "0 0 48px 48px",
+        }}
+      />
 
-          <h2 style={styles.title}>{selectedMateri.title}</h2>
-          <p style={styles.detail}>{selectedMateri.detail}</p>
-        </div>
+      {/* ================= CONTENT ================= */}
+      <Container maxWidth="xl" sx={{ mt: -12, mb: 8 }}>
+        <Paper
+          sx={{
+            p: { xs: 2.5, md: 4 },
+            borderRadius: 4,
+            boxShadow: "0 22px 50px rgba(0,0,0,.2)",
+          }}
+        >
+          <Typography variant="h5" fontWeight="bold" mb={3}>
+            Materi Pembelajaran
+          </Typography>
 
-        {/* ================= RIGHT ================= */}
-        <div style={styles.rightList}>
-          {materiList.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                ...styles.listItem,
-                backgroundColor:
-                  selectedMateri.id === item.id ? "#e9fff1" : "transparent",
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "2fr 1fr" },
+              gap: 3,
+            }}
+          >
+            {/* ================= LEFT DETAIL ================= */}
+            <Paper
+              sx={{
+                p: 3,
+                borderRadius: 4,
+                border: "2px solid #A7F3D0",
+                boxShadow: "0 12px 30px rgba(0,0,0,.18)",
               }}
-              onClick={() => setSelectedMateri(item)}
             >
-              <h4 style={styles.listTitle}>{item.title}</h4>
-              <p style={styles.listDesc}>{item.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+              {imageUrl && (
+                <Box
+                  component="img"
+                  src={imageUrl}
+                  alt="materi"
+                  loading="lazy"
+                  sx={{
+                    width: "100%",
+                    maxHeight: 420,
+                    objectFit: "contain",
+                    borderRadius: 3,
+                    mb: 3,
+                    bgcolor: "#F0FDF4",
+                  }}
+                />
+              )}
+
+              <Typography variant="h5" fontWeight="bold" mb={1}>
+                {selectedMateri.title}
+              </Typography>
+
+              <Typography color="text.secondary" lineHeight={1.7}>
+                {selectedMateri.detail}
+              </Typography>
+            </Paper>
+
+            {/* ================= RIGHT LIST ================= */}
+            <Paper
+              sx={{
+                borderRadius: 4,
+                border: "2px solid #A7F3D0",
+                boxShadow: "0 12px 30px rgba(0,0,0,.18)",
+                maxHeight: "75vh",
+                overflowY: "auto",
+              }}
+            >
+              <Typography
+                fontWeight="bold"
+                px={2}
+                py={2}
+                sx={{ borderBottom: "1px solid #D1FAE5" }}
+              >
+                Daftar Materi
+              </Typography>
+
+              <List disablePadding>
+                {materiList.map((item) => {
+                  const isActive = selectedMateri?.id === item.id;
+                  return (
+                    <ListItemButton
+                      key={item.id}
+                      onClick={() => setSelectedMateri(item)}
+                      sx={{
+                        alignItems: "flex-start",
+                        borderBottom: "1px solid #ECFDF5",
+                        bgcolor: isActive ? "#ECFDF5" : "transparent",
+                        "&:hover": {
+                          bgcolor: "#F0FDF4",
+                        },
+                      }}
+                    >
+                      <Box>
+                        <Typography fontWeight={600}>{item.title}</Typography>
+                        <Typography fontSize={14} color="text.secondary">
+                          {item.description}
+                        </Typography>
+                      </Box>
+                    </ListItemButton>
+                  );
+                })}
+              </List>
+            </Paper>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 }
 
-/* ====================== SKELETON ====================== */
-const SkeletonLeft = () => (
-  <div style={styles.leftBox}>
-    <div style={styles.skeletonImage} />
-    <div style={styles.skeletonLineLg} />
-    <div style={styles.skeletonLine} />
-    <div style={styles.skeletonLine} />
-  </div>
-);
+/* ================= SKELETON ================= */
+function MateriSkeleton() {
+  return (
+    <Box sx={{ position: "relative" }}>
+      <Box
+        sx={{
+          height: { xs: 220, md: 280 },
+          background: "linear-gradient(135deg, #047857, #34D399)",
+          borderRadius: "0 0 48px 48px",
+        }}
+      />
 
-const SkeletonRight = () => (
-  <div style={styles.rightList}>
-    {[1, 2, 3, 4].map((i) => (
-      <div key={i} style={styles.skeletonItem} />
-    ))}
-  </div>
-);
+      <Container maxWidth="xl" sx={{ mt: -12 }}>
+        <Paper sx={{ p: 4, borderRadius: 4 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "2fr 1fr" },
+              gap: 3,
+            }}
+          >
+            <Paper sx={{ p: 3, borderRadius: 4 }}>
+              <Skeleton variant="rectangular" height={260} sx={{ borderRadius: 3, mb: 3 }} />
+              <Skeleton width="60%" height={32} sx={{ mb: 1 }} />
+              <Skeleton height={18} />
+              <Skeleton height={18} />
+              <Skeleton height={18} />
+            </Paper>
 
-/* ====================== STYLES ====================== */
-const styles = {
-  pageWrapper: {
-    background: "#f7fdfb",
-    minHeight: "100vh",
-    padding: "40px 0",
-  },
-
-  container: {
-    display: "flex",
-    gap: 20,
-    padding: "0 40px",
-    flexWrap: "wrap",
-  },
-
-  leftBox: {
-    flex: "2 1 500px",
-    background: "#fff",
-    borderRadius: 12,
-    border: "1px solid #ccc",
-    padding: 25,
-  },
-
-  mainImage: {
-    width: "100%",
-    height: "auto",
-    maxHeight: 400,
-    objectFit: "contain", // 🔥 sesuai ukuran asli
-    borderRadius: 12,
-    marginBottom: 20,
-    background: "#fafafa",
-  },
-
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-
-  detail: {
-    fontSize: 16,
-    color: "#444",
-    lineHeight: 1.6,
-  },
-
-  rightList: {
-    flex: "1 1 280px",
-    background: "#fff",
-    borderRadius: 12,
-    border: "1px solid #ccc",
-    maxHeight: "80vh",
-    overflowY: "auto",
-    padding: 10,
-  },
-
-  listItem: {
-    padding: "14px 10px",
-    borderBottom: "1px solid #e3e3e3",
-    cursor: "pointer",
-    borderRadius: 8,
-  },
-
-  listTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    margin: 0,
-  },
-
-  listDesc: {
-    margin: 0,
-    fontSize: 14,
-    color: "#666",
-  },
-
-  center: {
-    minHeight: "60vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  /* ===== SKELETON ===== */
-  skeletonImage: {
-    height: 220,
-    borderRadius: 12,
-    background: "linear-gradient(90deg,#eee,#f5f5f5,#eee)",
-    animation: "pulse 1.5s infinite",
-    marginBottom: 20,
-  },
-
-  skeletonLineLg: {
-    height: 22,
-    width: "60%",
-    borderRadius: 6,
-    background: "#eee",
-    marginBottom: 12,
-  },
-
-  skeletonLine: {
-    height: 14,
-    width: "100%",
-    borderRadius: 6,
-    background: "#eee",
-    marginBottom: 8,
-  },
-
-  skeletonItem: {
-    height: 60,
-    borderRadius: 8,
-    background: "#eee",
-    marginBottom: 10,
-  },
-};
+            <Paper sx={{ p: 2, borderRadius: 4 }}>
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} height={60} sx={{ mb: 1 }} />
+              ))}
+            </Paper>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
+  );
+}

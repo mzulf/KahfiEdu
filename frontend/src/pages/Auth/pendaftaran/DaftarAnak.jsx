@@ -1,9 +1,9 @@
 // src/pages/Auth/pendaftaran/DaftarAnak.jsx
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { 
-  Box, 
-  Typography, 
+import {
+  Box,
+  Typography,
   Card,
   Button,
   TextField,
@@ -12,21 +12,29 @@ import {
   FormControl,
   ToggleButtonGroup,
   ToggleButton,
-  Container,
-  InputAdornment,
-  IconButton
+  Container
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import "dayjs/locale/id";
+
+dayjs.locale("id");
 
 export default function DaftarAnak() {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Ambil data dari step sebelumnya
+
   const { program, kelas, kategori, formProgram } = location.state || {};
 
-  // Form state
+  /* ===================== */
+  /* State */
+  /* ===================== */
+  const [tempatLahir, setTempatLahir] = useState("");
+  const [tanggalLahir, setTanggalLahir] = useState(null);
+
   const [formData, setFormData] = useState({
     namaLengkap: "",
     jenisKelamin: "",
@@ -37,11 +45,24 @@ export default function DaftarAnak() {
     deskripsiAnak: ""
   });
 
+  const [errors, setErrors] = useState({});
+
+  /* ===================== */
+  /* Helpers */
+  /* ===================== */
+  const updateTTL = (tempat, tanggal) => {
+    if (tempat && tanggal) {
+      const formattedDate = dayjs(tanggal).format("DD MMMM YYYY");
+      setFormData((prev) => ({
+        ...prev,
+        tempatTanggalLahir: `${tempat}, ${formattedDate}`
+      }));
+    }
+  };
+
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const handleBack = () => {
@@ -50,14 +71,45 @@ export default function DaftarAnak() {
     });
   };
 
-  const handleLanjut = () => {
-    // Validasi
-    if (!formData.namaLengkap || !formData.jenisKelamin || !formData.pilihanProgram || !formData.sistemPembelajaran) {
-      alert("Mohon lengkapi field yang wajib diisi (*)");
-      return;
-    }
+  /* ===================== */
+  /* Validation */
+  /* ===================== */
+  const validateForm = () => {
+    const newErrors = {};
 
-    // Lanjut ke step 3
+    if (!formData.namaLengkap || formData.namaLengkap.length < 3)
+      newErrors.namaLengkap = "Minimal 3 karakter";
+
+    if (!formData.pilihanProgram)
+      newErrors.pilihanProgram = "Pilih program";
+
+    if (!formData.jenisKelamin)
+      newErrors.jenisKelamin = "Pilih jenis kelamin";
+
+    if (!formData.sistemPembelajaran)
+      newErrors.sistemPembelajaran = "Pilih sistem pembelajaran";
+
+    if (!formData.umur || !/^\d+$/.test(formData.umur))
+      newErrors.umur = "Umur harus angka";
+    else if (formData.umur < 3 || formData.umur > 18)
+      newErrors.umur = "Umur 3–18 tahun";
+
+    if (!tempatLahir)
+      newErrors.tempatTanggalLahir = "Tempat lahir wajib diisi";
+
+    if (!tanggalLahir)
+      newErrors.tempatTanggalLahir = "Tanggal lahir wajib dipilih";
+
+    if (!formData.deskripsiAnak || formData.deskripsiAnak.length < 10)
+      newErrors.deskripsiAnak = "Minimal 10 karakter";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleLanjut = () => {
+    if (!validateForm()) return;
+
     navigate("/siswa/pendaftaran/daftar-ortu", {
       state: {
         program,
@@ -69,93 +121,58 @@ export default function DaftarAnak() {
     });
   };
 
+  /* ===================== */
+  /* UI */
+  /* ===================== */
   return (
     <Box sx={{ backgroundColor: "#F5F5F5", minHeight: "100vh", pb: 4 }}>
-      
-      {/* Header dengan Wave */}
+      {/* Header */}
       <Box
         sx={{
           backgroundColor: "#A7F3D0",
-          borderBottomLeftRadius: "50% 30px",
-          borderBottomRightRadius: "50% 30px",
-          pb: 4,
-          pt: 2
+          borderBottomLeftRadius: "50% 40px",
+          borderBottomRightRadius: "50% 40px",
+          pb: 5
         }}
-      >
-        <Container maxWidth="lg">
-          {/* Logo/Title */}
-        </Container>
-      </Box>
+      />
 
-      <Container maxWidth="md" sx={{ mt: -2 }}>
-
-        {/* Kategori Toggle Buttons */}
+      <Container maxWidth="md" sx={{ mt: -3 }}>
+        {/* Toggle */}
         <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
           <ToggleButtonGroup
             value="anak"
             exclusive
-            sx={{ backgroundColor: "white", borderRadius: 8 }}
+            sx={{
+              backgroundColor: "white",
+              borderRadius: 999,
+              p: 0.5
+            }}
           >
-            <ToggleButton 
-              value="umum"
-              sx={{
-                px: 3,
-                py: 1,
-                borderRadius: "25px !important",
-                textTransform: "none",
-                "&.Mui-selected": {
-                  backgroundColor: "#10B981",
-                  color: "white"
-                }
-              }}
-            >
-              <CheckCircleIcon sx={{ mr: 1, fontSize: 18 }} />
-              Umum
-            </ToggleButton>
-            <ToggleButton 
-              value="anak"
-              selected
-              sx={{
-                px: 3,
-                py: 1,
-                borderRadius: "25px !important",
-                textTransform: "none",
-                "&.Mui-selected": {
-                  backgroundColor: "#10B981",
-                  color: "white",
-                  "&:hover": {
-                    backgroundColor: "#059669"
+            {["umum", "anak", "orang-tua"].map((item) => (
+              <ToggleButton
+                key={item}
+                value={item}
+                sx={{
+                  px: 4,
+                  py: 1,
+                  borderRadius: 999,
+                  textTransform: "none",
+                  fontWeight: 500,
+                  "&.Mui-selected": {
+                    backgroundColor: "#10B981",
+                    color: "white"
                   }
-                }
-              }}
-            >
-              <CheckCircleIcon sx={{ mr: 1, fontSize: 18 }} />
-              Anak
-            </ToggleButton>
-            <ToggleButton 
-              value="orang-tua"
-              sx={{
-                px: 3,
-                py: 1,
-                borderRadius: "25px !important",
-                textTransform: "none"
-              }}
-            >
-              Orang Tua
-            </ToggleButton>
+                }}
+              >
+                <CheckCircleIcon sx={{ mr: 1, fontSize: 18 }} />
+                {item.replace("-", " ").toUpperCase()}
+              </ToggleButton>
+            ))}
           </ToggleButtonGroup>
         </Box>
 
-        {/* Form Card */}
-        <Card
-          sx={{
-            borderRadius: 3,
-            border: "1px solid #E0E0E0",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            p: 4,
-            mb: 3
-          }}
-        >
+        {/* Form */}
+        <Card sx={{ borderRadius: 3, p: 4 }}>
           <Box
             sx={{
               display: "grid",
@@ -163,163 +180,125 @@ export default function DaftarAnak() {
               gap: 3
             }}
           >
-            {/* Nama Lengkap Anak */}
+            <TextField
+              label="Nama Lengkap Anak *"
+              fullWidth
+              value={formData.namaLengkap}
+              onChange={(e) =>
+                handleInputChange("namaLengkap", e.target.value)
+              }
+              error={Boolean(errors.namaLengkap)}
+              helperText={errors.namaLengkap}
+            />
+
+            <SelectField
+              label="Pilihan Program *"
+              value={formData.pilihanProgram}
+              error={errors.pilihanProgram}
+              onChange={(v) => handleInputChange("pilihanProgram", v)}
+              options={[
+                { value: "tahsin", label: "Tahsin" },
+                { value: "tahfidz", label: "Tahfidz" },
+                { value: "tilawah", label: "Tilawah" },
+                { value: "iqro", label: "Iqro" }
+              ]}
+            />
+
+            <SelectField
+              label="Jenis Kelamin *"
+              value={formData.jenisKelamin}
+              error={errors.jenisKelamin}
+              onChange={(v) => handleInputChange("jenisKelamin", v)}
+              options={[
+                { value: "laki-laki", label: "Laki-laki" },
+                { value: "perempuan", label: "Perempuan" }
+              ]}
+            />
+
+            <SelectField
+              label="Sistem Pembelajaran *"
+              value={formData.sistemPembelajaran}
+              error={errors.sistemPembelajaran}
+              onChange={(v) =>
+                handleInputChange("sistemPembelajaran", v)
+              }
+              options={[
+                { value: "online", label: "Online" },
+                { value: "offline", label: "Offline (Visit Home)" },
+                { value: "hybrid", label: "Hybrid" }
+              ]}
+            />
+
+            <TextField
+              label="Umur *"
+              fullWidth
+              value={formData.umur}
+              onChange={(e) => handleInputChange("umur", e.target.value)}
+              error={Boolean(errors.umur)}
+              helperText={errors.umur}
+            />
+
+            {/* Tempat + Kalender */}
             <Box>
-              <Typography variant="body2" fontWeight="500" mb={1}>
-                Nama Lengkap Anak<span style={{ color: "red" }}>*</span>
-              </Typography>
               <TextField
+                label="Tempat Lahir *"
                 fullWidth
-                placeholder="Masukkan nama lengkap"
-                value={formData.namaLengkap}
-                onChange={(e) => handleInputChange("namaLengkap", e.target.value)}
-                sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
-              />
-            </Box>
-
-            {/* Pilihan Program */}
-            <Box>
-              <Typography variant="body2" fontWeight="500" mb={1}>
-                Pilihan Program<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <FormControl fullWidth>
-                <Select
-                  value={formData.pilihanProgram}
-                  onChange={(e) => handleInputChange("pilihanProgram", e.target.value)}
-                  displayEmpty
-                  sx={{ borderRadius: 2 }}
-                >
-                  <MenuItem value="" disabled>Pilih program</MenuItem>
-                  <MenuItem value="tahsin">Tahsin</MenuItem>
-                  <MenuItem value="tahfidz">Tahfidz</MenuItem>
-                  <MenuItem value="tilawah">Tilawah</MenuItem>
-                  <MenuItem value="iqro">Iqro</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-
-            {/* Jenis Kelamin */}
-            <Box>
-              <Typography variant="body2" fontWeight="500" mb={1}>
-                Jenis Kelamin<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <FormControl fullWidth>
-                <Select
-                  value={formData.jenisKelamin}
-                  onChange={(e) => handleInputChange("jenisKelamin", e.target.value)}
-                  displayEmpty
-                  sx={{ borderRadius: 2 }}
-                >
-                  <MenuItem value="" disabled>Pilih jenis kelamin</MenuItem>
-                  <MenuItem value="laki-laki">Laki-laki</MenuItem>
-                  <MenuItem value="perempuan">Perempuan</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-
-            {/* Sistem Pembelajaran */}
-            <Box>
-              <Typography variant="body2" fontWeight="500" mb={1}>
-                Sistem Pembelajaran<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <FormControl fullWidth>
-                <Select
-                  value={formData.sistemPembelajaran}
-                  onChange={(e) => handleInputChange("sistemPembelajaran", e.target.value)}
-                  displayEmpty
-                  sx={{ borderRadius: 2 }}
-                >
-                  <MenuItem value="" disabled>Pilih sistem</MenuItem>
-                  <MenuItem value="online">Online</MenuItem>
-                  <MenuItem value="offline">Offline (Visit Home)</MenuItem>
-                  <MenuItem value="hybrid">Hybrid</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-
-            {/* Umur */}
-            <Box>
-              <Typography variant="body2" fontWeight="500" mb={1}>
-                Umur<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Contoh: 7 tahun"
-                value={formData.umur}
-                onChange={(e) => handleInputChange("umur", e.target.value)}
-                sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
-              />
-            </Box>
-
-            {/* Tempat, Tanggal Lahir */}
-            <Box>
-              <Typography variant="body2" fontWeight="500" mb={1}>
-                Tempat, Tanggal Lahir<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Jakarta, 01 Januari 2015"
-                value={formData.tempatTanggalLahir}
-                onChange={(e) => handleInputChange("tempatTanggalLahir", e.target.value)}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton edge="end">
-                        <CalendarTodayIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  )
+                value={tempatLahir}
+                onChange={(e) => {
+                  setTempatLahir(e.target.value);
+                  updateTTL(e.target.value, tanggalLahir);
                 }}
-                sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+                error={Boolean(errors.tempatTanggalLahir)}
               />
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Tanggal Lahir *"
+                  value={tanggalLahir}
+                  onChange={(newValue) => {
+                    setTanggalLahir(newValue);
+                    updateTTL(tempatLahir, newValue);
+                  }}
+                  disableFuture
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      sx: { mt: 2 },
+                      error: Boolean(errors.tempatTanggalLahir),
+                      helperText: errors.tempatTanggalLahir
+                    }
+                  }}
+                />
+              </LocalizationProvider>
             </Box>
 
-            {/* Deskripsi tentang Anak - Full Width */}
-            <Box sx={{ gridColumn: { xs: "1", md: "1 / -1" } }}>
-              <Typography variant="body2" fontWeight="500" mb={1}>
-                Deskripsi tentang Anak<span style={{ color: "red" }}>*</span>
-              </Typography>
-              <Typography variant="caption" color="text.secondary" display="block" mb={1}>
-                (Mohon diisi mengenai minat belajar anak seperti: gaya belajar, metode belajar sehari-hari, 
-                sesuatu yang disukai dan tidak disukai)
-              </Typography>
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                placeholder="Tuliskan deskripsi..."
-                value={formData.deskripsiAnak}
-                onChange={(e) => handleInputChange("deskripsiAnak", e.target.value)}
-                sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
-              />
-            </Box>
+            <TextField
+              label="Deskripsi tentang Anak *"
+              multiline
+              rows={4}
+              fullWidth
+              sx={{ gridColumn: "1 / -1" }}
+              value={formData.deskripsiAnak}
+              onChange={(e) =>
+                handleInputChange("deskripsiAnak", e.target.value)
+              }
+              error={Boolean(errors.deskripsiAnak)}
+              helperText={errors.deskripsiAnak}
+            />
           </Box>
         </Card>
 
-        {/* Progress Indicator */}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 3 }}>
-          <Box sx={{ width: 80, height: 4, backgroundColor: "#10B981", borderRadius: 2 }} />
-          <Box sx={{ width: 80, height: 4, backgroundColor: "#10B981", borderRadius: 2 }} />
-          <Box sx={{ width: 80, height: 4, backgroundColor: "#D1D5DB", borderRadius: 2 }} />
-        </Box>
-
         {/* Buttons */}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 4 }}>
           <Button
             onClick={handleBack}
-            variant="outlined"
             sx={{
-              borderRadius: 8,
-              px: 4,
-              py: 1.5,
-              textTransform: "none",
-              fontSize: "16px",
-              borderColor: "#E0E0E0",
+              px: 5,
+              py: 1.4,
+              borderRadius: 999,
+              backgroundColor: "#E5E7EB",
               color: "#374151",
-              "&:hover": {
-                borderColor: "#9CA3AF",
-                backgroundColor: "#F9FAFB"
-              }
+              "&:hover": { backgroundColor: "#D1D5DB" }
             }}
           >
             Kembali
@@ -327,24 +306,47 @@ export default function DaftarAnak() {
 
           <Button
             onClick={handleLanjut}
-            variant="contained"
             sx={{
-              borderRadius: 8,
-              px: 4,
-              py: 1.5,
-              textTransform: "none",
-              fontSize: "16px",
+              px: 5,
+              py: 1.4,
+              borderRadius: 999,
               backgroundColor: "#10B981",
-              "&:hover": {
-                backgroundColor: "#059669"
-              }
+              color: "white",
+              "&:hover": { backgroundColor: "#059669" }
             }}
           >
             Lanjut
           </Button>
         </Box>
-
       </Container>
     </Box>
+  );
+}
+
+/* ===================== */
+/* Helper */
+function SelectField({ label, value, onChange, options, error }) {
+  return (
+    <FormControl fullWidth error={Boolean(error)}>
+      <Select
+        value={value}
+        displayEmpty
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <MenuItem value="" disabled>
+          {label}
+        </MenuItem>
+        {options.map((opt) => (
+          <MenuItem key={opt.value} value={opt.value}>
+            {opt.label}
+          </MenuItem>
+        ))}
+      </Select>
+      {error && (
+        <Typography variant="caption" color="error">
+          {error}
+        </Typography>
+      )}
+    </FormControl>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Box, Container, Typography, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import Ewallet from "./Ewallet";
 import Transfer from "./Transfer";
 
@@ -6,40 +7,33 @@ export default function PaymentMethod() {
   const [method, setMethod] = useState("ewallet");
 
   return (
-    <div className="w-full min-h-screen bg-white flex flex-col items-center py-10">
-      
-      {/* Judul */}
-      <h2 className="text-xl font-bold mb-6">Pilih Metode Pembayaran</h2>
+    <Container maxWidth="sm" sx={{ mt: 8, mb: 8 }}>
+      <Box
+        sx={{
+          bgcolor: "white",
+          borderRadius: 4,
+          p: 4,
+          boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+        }}
+      >
+        <Typography variant="h5" fontWeight="bold" mb={3} textAlign="center">
+          Metode Pembayaran
+        </Typography>
 
-      {/* Tombol Selector */}
-      <div className="flex gap-6 mb-8">
-        {/* E-Wallet */}
-        <button
-          onClick={() => setMethod("ewallet")}
-          className={`px-8 py-4 rounded-xl border 
-            flex flex-col items-center gap-2
-            ${method === "ewallet" ? "bg-green-100 border-green-500 shadow-md" : "bg-white"}
-          `}
+        {/* SELECT METHOD */}
+        <ToggleButtonGroup
+          value={method}
+          exclusive
+          fullWidth
+          onChange={(e, v) => v && setMethod(v)}
+          sx={{ mb: 4 }}
         >
-          <span className="font-semibold">E - Wallet</span>
-        </button>
+          <ToggleButton value="ewallet">E-Wallet</ToggleButton>
+          <ToggleButton value="transfer">Transfer Bank</ToggleButton>
+        </ToggleButtonGroup>
 
-        {/* Transfer Bank */}
-        <button
-          onClick={() => setMethod("transfer")}
-          className={`px-8 py-4 rounded-xl border 
-            flex flex-col items-center gap-2
-            ${method === "transfer" ? "bg-green-100 border-green-500 shadow-md" : "bg-white"}
-          `}
-        >
-          <span className="font-semibold">Transfer Bank</span>
-        </button>
-      </div>
-
-      {/* Konten berubah otomatis */}
-      <div className="w-full max-w-xl">
         {method === "ewallet" ? <Ewallet /> : <Transfer />}
-      </div>
-    </div>
+      </Box>
+    </Container>
   );
 }

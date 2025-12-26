@@ -1,109 +1,127 @@
-import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogActions, Button, Typography } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  IconButton,
+  Divider,
+} from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function Invoice() {
   const navigate = useNavigate();
-  const [openSuccess, setOpenSuccess] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const handleSubmit = () => {
-    setOpenSuccess(true);
-
-    // Auto close & redirect after 5 seconds
-    setTimeout(() => {
-      navigate("/siswa");
-    }, 5000);
-  };
+  const dataInvoice = [
+    { label: "Nama Lengkap", value: "Ahmad Fadli" },
+    { label: "Email", value: "ahmad@gmail.com" },
+    { label: "Nomor HP", value: "08123456789" },
+    { label: "Kelas", value: "Tahfidz Online" },
+    { label: "Total Pembayaran", value: "Rp 150.000" },
+    { label: "Status", value: "Lunas" },
+  ];
 
   return (
-    <div className="min-h-screen flex justify-center items-start p-6 bg-white">
-      <div className="w-full max-w-3xl bg-white border rounded-3xl p-10 shadow-sm">
+    <Container maxWidth="sm" sx={{ mt: 8, mb: 6 }}>
+      {/* ================= INVOICE CARD ================= */}
+      <Paper
+        sx={{
+          p: 4,
+          borderRadius: 4,
+          border: "2px solid #A7F3D0",
+          boxShadow: "0 14px 35px rgba(0,0,0,0.15)",
+        }}
+      >
+        <Typography variant="h4" fontWeight="bold" mb={0.5}>
+          Invoice
+        </Typography>
+        <Typography color="text.secondary" mb={4}>
+          INV/2025/05/00027
+        </Typography>
 
-        {/* Title */}
-        <h1 className="text-4xl font-bold mb-2">Invoice</h1>
-        <p className="text-gray-700 mb-6">INV/2025/05/00027</p>
+        {/* ===== DATA VERTICAL ===== */}
+        <Box display="flex" flexDirection="column" gap={2.5}>
+          {dataInvoice.map((item) => (
+            <Box key={item.label}>
+              <Typography fontSize={13} color="text.secondary">
+                {item.label}
+              </Typography>
+              <Typography fontWeight="bold" fontSize={16}>
+                {item.value}
+              </Typography>
+              <Divider sx={{ mt: 1 }} />
+            </Box>
+          ))}
+        </Box>
 
-        {/* Card */}
-        <div className="border rounded-2xl p-8">
+        {/* ===== BUTTON ===== */}
+        <Button
+          fullWidth
+          sx={{
+            mt: 5,
+            bgcolor: "#047857",
+            borderRadius: 3,
+            py: 1.5,
+            fontWeight: "bold",
+            "&:hover": {
+              bgcolor: "#065F46",
+            },
+          }}
+          variant="contained"
+          onClick={() => setOpen(true)}
+        >
+          Selesai
+        </Button>
+      </Paper>
 
-          {/* Table */}
-          <div className="grid grid-cols-2 gap-y-3 text-sm">
-
-            <p className="text-gray-600">Nama lengkap</p>
-            <p className="text-right font-medium">Ahmad Fadli</p>
-
-            <p className="text-gray-600">Email</p>
-            <p className="text-right font-medium">ahmad.fadli@gmail.com</p>
-
-            <p className="text-gray-600">Nomor HP</p>
-            <p className="text-right font-medium">08123456789</p>
-
-            <p className="text-gray-600">Nama kelas</p>
-            <p className="text-right font-medium">Kelas A Tahfidz (online)</p>
-
-            <p className="text-gray-600">Jadwal</p>
-            <p className="text-right font-medium">Senin & Rabu, 19.00 - 20.30 WIB</p>
-
-            <p className="text-gray-600">Biaya pendaftaran</p>
-            <p className="text-right font-medium">Rp 50.000</p>
-
-            <p className="text-gray-600">Biaya bulanan</p>
-            <p className="text-right font-medium">Rp 100.000</p>
-
-            <p className="text-gray-600">Total</p>
-            <p className="text-right font-medium">Rp 150.000</p>
-
-            <p className="text-gray-600">Transfer Bank</p>
-            <p className="text-right font-medium">Bank BCA</p>
-
-            <p className="text-gray-600">No. Rekening</p>
-            <p className="text-right font-medium">1234567890 a.n Kahfi Education</p>
-
-            <p className="text-gray-600">Tanggal pembayaran</p>
-            <p className="text-right font-medium">10 Juni 2025</p>
-
-            <p className="text-gray-600">Status</p>
-            <p className="text-right font-medium">Lunas</p>
-          </div>
-
-          {/* Button */}
-          <button
-            className="w-full mt-8 bg-green-600 text-white py-3 rounded-full text-lg font-semibold hover:bg-green-700"
-            onClick={handleSubmit}
+      {/* ================= SUCCESS POPUP ================= */}
+      <Dialog open={open} maxWidth="xs" fullWidth>
+        <DialogContent sx={{ position: "relative", textAlign: "center", py: 5 }}>
+          
+          {/* CLOSE BUTTON */}
+          <IconButton
+            onClick={() => setOpen(false)}
+            sx={{ position: "absolute", top: 8, left: 8 }}
           >
-            Kirim
-          </button>
-        </div>
-      </div>
+            <CloseIcon />
+          </IconButton>
 
-      {/* Success Popup */}
-      <Dialog open={openSuccess} maxWidth="xs" fullWidth>
-        <DialogContent sx={{ textAlign: "center", py: 4 }}>
-          <CheckCircleIcon sx={{ fontSize: 80, color: "#10B981", mb: 2 }} />
+          <CheckCircleIcon
+            sx={{ fontSize: 90, color: "#10B981", mb: 2 }}
+          />
+
           <Typography variant="h5" fontWeight="bold" mb={1}>
-            Pembayaran Berhasil!
+            Pembayaran Berhasil
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Anda akan diarahkan ke halaman utama dalam 5 detik...
-          </Typography>
-        </DialogContent>
 
-        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+          <Typography color="text.secondary" mb={4}>
+            Terima kasih, pembayaran Anda telah kami terima.
+          </Typography>
+
           <Button
-            onClick={() => navigate("/siswa")}
+            fullWidth
             variant="contained"
+            onClick={() => navigate("/siswa")}
             sx={{
-              backgroundColor: "#10B981",
-              px: 4,
-              borderRadius: 2,
-              "&:hover": { backgroundColor: "#059669" },
+              bgcolor: "#047857",
+              py: 1.4,
+              borderRadius: 3,
+              fontWeight: "bold",
+              "&:hover": {
+                bgcolor: "#065F46",
+              },
             }}
           >
-            Kembali Sekarang
+            Kembali ke Beranda
           </Button>
-        </DialogActions>
+        </DialogContent>
       </Dialog>
-    </div>
+    </Container>
   );
 }

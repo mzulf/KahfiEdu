@@ -4,7 +4,6 @@ import {
   Box,
   Toolbar,
   IconButton,
-  Typography,
   Menu,
   MenuItem,
   Drawer,
@@ -14,6 +13,7 @@ import {
   ListItemIcon,
   ListItemText,
   Container,
+  Typography,
 } from "@mui/material";
 
 import MenuIcon from "@mui/icons-material/Menu";
@@ -29,198 +29,205 @@ import SearchIcon from "@mui/icons-material/Search";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 
-import { styled, alpha } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
-
-// ⭐ UPDATED — Kita perlu Link untuk navigasi notif
 import { Link, useNavigate, useLocation } from "react-router-dom";
-
 import { useAuth } from "../../../hooks/useAuth";
 
-// Search Input
-const Search = styled("div")(({ theme }) => ({
+/* ================= SEARCH ================= */
+const Search = styled("div")({
   position: "relative",
-  border: "1px solid #ccc",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": { backgroundColor: alpha(theme.palette.common.white, 0.25) },
-  width: "100%",
-  [theme.breakpoints.up("sm")]: { width: "auto" },
-}));
+  borderRadius: 14,
+  backgroundColor: "#ffffff",
+  border: "1px solid #E5E7EB",
+  width: 260,
+});
 
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
+const SearchIconWrapper = styled("div")({
+  padding: "0 16px",
   height: "100%",
   position: "absolute",
-  pointerEvents: "none",
   display: "flex",
   alignItems: "center",
-  justifyContent: "center",
-}));
+  color: "#9CA3AF",
+});
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
+const StyledInputBase = styled(InputBase)({
   width: "100%",
   "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    padding: "9px 8px 9px 0",
+    paddingLeft: "48px",
+    fontSize: 14,
   },
-}));
+});
 
+/* ================= COMPONENT ================= */
 export default function Navbar() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const toggleDrawer = () => setDrawerOpen(!drawerOpen);
-
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const isMenuOpen = Boolean(anchorEl);
 
   const navigate = useNavigate();
   const location = useLocation();
-  const currentPath = location.pathname;
-
   const { logout } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
-
-  // Sidebar menu list
   const menuItems = [
-    {
-      name: "Dashboard",
-      icon: <DashboardIcon color="success" />,
-      path: "/siswa",
-    },
-    {
-      name: "Jadwal",
-      icon: <CalendarMonthIcon color="success" />,
-      path: "/siswa/jadwal",
-    },
-    {
-      name: "Data Guru",
-      icon: <StorageIcon color="success" />,
-      path: "/siswa/pengajar",
-    },
-    {
-      name: "Materi",
-      icon: <MenuBookIcon color="success" />,
-      path: "/siswa/materi",
-    },
-    {
-      name: "Program",
-      icon: <AssignmentIcon color="success" />,
-      path: "/siswa/pilih-program",
-    },
-    {
-      name: "Profile",
-      icon: <PersonIcon color="success" />,
-      path: "/siswa/profile",
-    },
+    { name: "Dashboard", icon: <DashboardIcon />, path: "/siswa" },
+    { name: "Jadwal", icon: <CalendarMonthIcon />, path: "/siswa/jadwal" },
+    { name: "Data Guru", icon: <StorageIcon />, path: "/siswa/pengajar" },
+    { name: "Materi", icon: <MenuBookIcon />, path: "/siswa/materi" },
+    { name: "Program", icon: <AssignmentIcon />, path: "/siswa/kelas" },
+    { name: "Profile", icon: <PersonIcon />, path: "/siswa/profile" },
   ];
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      {/* NAVBAR */}
-      <AppBar position="static" elevation={0} sx={{ backgroundColor: "lightgreen", color: "black" }}>
+    <>
+      {/* ================= NAVBAR ================= */}
+      <AppBar
+        position="fixed"
+        elevation={0}
+        sx={{
+          background: "linear-gradient(135deg, #047857, #34D399)",
+          zIndex: 1300,
+        }}
+      >
         <Container maxWidth="xl">
-          <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-
-            {/* LEFT GROUP */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <IconButton onClick={toggleDrawer}>
+          <Toolbar sx={{ minHeight: 72, justifyContent: "space-between" }}>
+            {/* LEFT */}
+            <Box display="flex" alignItems="center" gap={1.5}>
+              <IconButton
+                onClick={() => setDrawerOpen(true)}
+                sx={{ color: "#fff" }}
+              >
                 <MenuIcon />
               </IconButton>
 
-              <img
-                src="/img/logo/logo.png"
-                alt="Logo"
-                style={{ height: "45px" }}
-              />
+              <Box
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: 150,
+                  px: 1.2,
+                  py: 0.5,
+                }}
+              >
+                <img
+                  src="/img/logo/logo.png"
+                  alt="logo"
+                  style={{ height: 34 }}
+                />
+              </Box>
             </Box>
 
-            {/* RIGHT SIDE (DESKTOP) */}
-            <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 2 }}>
-
-              <Search sx={{ display: "flex", alignItems: "center" }}>
+            {/* RIGHT */}
+            <Box
+              display={{ xs: "none", md: "flex" }}
+              alignItems="center"
+              gap={2}
+            >
+              <Search>
                 <SearchIconWrapper>
                   <SearchIcon />
                 </SearchIconWrapper>
-                <StyledInputBase placeholder="Search…" />
+                <StyledInputBase placeholder="Search..." />
               </Search>
 
-              
+              {/* 🔔 NOTIFIKASI — FIX */}
               <IconButton
-                color="success"
-                component={Link}            
-                to="/siswa/notifikasi"      
+                sx={{ color: "white" }}
+                onClick={() => navigate("/siswa/notifikasi")}
               >
                 <NotificationsIcon />
               </IconButton>
 
-              <IconButton color="success" onClick={(e) => setAnchorEl(e.currentTarget)}>
+              <IconButton
+                sx={{ color: "white" }}
+                onClick={(e) => setAnchorEl(e.currentTarget)}
+              >
                 <AccountCircle />
               </IconButton>
             </Box>
-
           </Toolbar>
         </Container>
       </AppBar>
 
-      {/* PROFILE MENU */}
-      <Menu anchorEl={anchorEl} open={isMenuOpen} onClose={() => setAnchorEl(null)}>
-        <MenuItem onClick={() => navigate("/siswa/profile")}>Profile</MenuItem>
-        <MenuItem onClick={handleLogout}>Logout</MenuItem>
-      </Menu>
+      {/* SPACER RESMI MUI (ANTI GAP PUTIH) */}
+      <Toolbar />
 
-      {/* DRAWER SIDEBAR */}
-      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
-        <Box sx={{ width: 260, p: 2 }}>
-
-          {/* HEADER DRAWER */}
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              Kahfi Education
-            </Typography>
-
-            <IconButton onClick={toggleDrawer}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-
-          <Typography sx={{ fontWeight: 600, mb: 2 }}>Menu</Typography>
-
-          {/* LIST MENU */}
-          <List>
-            {menuItems.map((item) => (
-              <ListItem key={item.name} disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to={item.path}
-                  selected={currentPath === item.path}
-                  onClick={toggleDrawer}
-                  sx={{ mb: 1, borderRadius: "12px" }}
-                >
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.name} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-
-            {/* LOGOUT */}
-            <ListItem disablePadding sx={{ mt: 2 }}>
-              <ListItemButton onClick={handleLogout} sx={{ color: "red" }}>
-                <ListItemIcon>
-                  <LogoutIcon sx={{ color: "red" }} />
-                </ListItemIcon>
-                <ListItemText primary="Log out" />
-              </ListItemButton>
-            </ListItem>
-
-          </List>
-
-        </Box>
-      </Drawer>
+      {/* ================= PROFILE MENU ================= */}
+     <Drawer
+  anchor="left"
+  open={drawerOpen}
+  onClose={() => setDrawerOpen(false)}
+  ModalProps={{
+    keepMounted: true,
+  }}
+  BackdropProps={{
+    invisible: false,
+  }}
+>
+  <Box
+    sx={{
+      width: 280,
+      bgcolor: "#F0FDF4",
+      p: 2,
+    }}
+  >
+    {/* HEADER */}
+    <Box
+      display="flex"
+      justifyContent="space-between"
+      alignItems="center"
+      mb={2}
+    >
+      <Typography fontWeight={700}>Menu</Typography>
+      <IconButton onClick={() => setDrawerOpen(false)}>
+        <CloseIcon />
+      </IconButton>
     </Box>
+
+    <List disablePadding>
+      {menuItems.map((item) => {
+        const active = location.pathname === item.path;
+
+        return (
+          <ListItem key={item.name} disablePadding sx={{ mb: 1 }}>
+            <ListItemButton
+              component={Link}
+              to={item.path}
+              onClick={() => setDrawerOpen(false)}
+              sx={{
+                borderRadius: 2,
+                bgcolor: active ? "#D1FAE5" : "transparent",
+                "&:hover": { bgcolor: "#ECFDF5" },
+              }}
+            >
+              <ListItemIcon sx={{ color: "#047857" }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText primary={item.name} />
+            </ListItemButton>
+          </ListItem>
+        );
+      })}
+
+      <ListItem disablePadding sx={{ mt: 1 }}>
+        <ListItemButton
+          onClick={() => {
+            setDrawerOpen(false);
+            logout();
+          }}
+        >
+          <ListItemIcon sx={{ color: "#DC2626" }}>
+            <LogoutIcon />
+          </ListItemIcon>
+          <ListItemText primary="Logout" />
+        </ListItemButton>
+      </ListItem>
+    </List>
+  </Box>
+</Drawer>
+
+
+
+    </>
   );
 }

@@ -1,102 +1,104 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { validateToken } = require('../middlewares/authMiddleware.js');
-const validateDataUser = require('../helpers/validationDataUser.js');
 
-// Route imports
+const { validateToken } = require("../middlewares/authMiddleware.js");
+const validateDataUser = require("../helpers/validationDataUser.js");
+
+// ================== ROUTE IMPORTS ==================
 const {
-    authRoute,
-    otpRoute,
-    importRoute,
-    userRoute,
-    roleRoute,
-    paymentMethodRoute,
-    bankRoute,
-    categoryRoute,
-    childrenRoute,
-    revisionRoute,
-    courseRoute,
-    classRoute,
-    classEnrollmentRoute,
-    lessonRoute,
-    attendanceRoute,
-    regionRoute,
-    blogRoute,
-    assignmentRoute,
-    submissionRoute,
-    googleAuthRoute,
-    paymentRoute,
-    exportRoute,
-    jobRoute,
-} = require('./routeImports.js');
+  authRoute,
+  otpRoute,
 
-// Public routes
-router.use('/auth', authRoute);
-router.use('/auth', otpRoute);
-router.use(googleAuthRoute)
-router.use([
-    courseRoute,
-    blogRoute,
-    jobRoute
-])
-// Token validation middleware
-router.use((req, res, next) => {
-    validateToken(req, res, next);
-});
+  importRoute,
+  exportRoute,
 
-// User validation route
-router.use('/validate/user', validateDataUser);
+  userRoute,
+  roleRoute,
+  revisionRoute,
 
-// Protected routes - Core features
-router.use([
-    userRoute,
-    roleRoute,
-    revisionRoute
-]);
+  paymentMethodRoute,
+  bankRoute,
+  paymentRoute,
 
-// Protected routes - Payment related
-router.use([
-    paymentMethodRoute,
-    bankRoute,
-    paymentRoute
-]);
+  categoryRoute,
+  childrenRoute,
+  courseRoute,
+  classRoute,
+  classEnrollmentRoute,
+  lessonRoute,
+  attendanceRoute,
+  assignmentRoute,
+  submissionRoute,
 
-// Protected routes - Educational features
-router.use([
-    childrenRoute,
-    categoryRoute,
-    classRoute,
-    classEnrollmentRoute,
-    lessonRoute,
-    attendanceRoute,
-    assignmentRoute,
-    submissionRoute
-]);
+  regionRoute,
+  blogRoute,
+  jobRoute,
 
-// Protected routes - Additional features
-router.use([
-    regionRoute,
+  googleAuthRoute,
+  materiRoute,
+} = require("./routeImports.js");
 
-]);
+// ================== EXTRA ==================
+const guruRoute = require("./guruRoute");
 
-// Export Import functionality
-router.use([
-    importRoute,
-    exportRoute
-])
+// ================== PUBLIC ==================
+router.use("/auth", authRoute);
+router.use("/auth", otpRoute);
+router.use(googleAuthRoute);
 
-// Development only routes
-if (process.env.NODE_ENV === 'development') {
-    router.get('/debug/jwt', (req, res) => {
-        const userId = req.user.id;
-        res.status(200).json({
-            success: true,
-            userId,
-            message: userId
-                ? 'User context is set correctly'
-                : 'User context is not set!'
-        });
+// public tanpa token
+router.use("/guru", guruRoute);
+router.use(courseRoute);
+router.use(blogRoute);
+router.use(jobRoute);
+
+// ================== TOKEN ==================
+router.use(validateToken);
+
+// ================== VALIDATION ==================
+router.use("/validate/user", validateDataUser);
+
+// ================== CORE ==================
+router.use(userRoute);
+router.use(roleRoute);
+router.use(revisionRoute);
+
+// ================== PAYMENT ==================
+router.use(paymentMethodRoute);
+router.use(bankRoute);
+router.use(paymentRoute);
+
+// ================== EDUCATION ==================
+// 🔥 FIX UTAMA: JANGAN DIMASUKIN ARRAY
+router.use("/materi", materiRoute);
+
+router.use(childrenRoute);
+router.use(categoryRoute);
+router.use(classRoute);
+router.use(classEnrollmentRoute);
+router.use(lessonRoute);
+router.use(attendanceRoute);
+router.use(assignmentRoute);
+router.use(submissionRoute);
+
+// ================== ADDITIONAL ==================
+router.use(regionRoute);
+
+// ================== IMPORT / EXPORT ==================
+router.use(importRoute);
+router.use(exportRoute);
+
+// ================== DEV ==================
+if (process.env.NODE_ENV === "development") {
+  router.get("/debug/jwt", (req, res) => {
+    res.status(200).json({
+      success: true,
+      userId: req.user?.id || null,
+      message: req.user?.id
+        ? "User context is set correctly"
+        : "User context is not set!",
     });
+  });
 }
 
 module.exports = router;

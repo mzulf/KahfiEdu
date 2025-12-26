@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import AuthProvider from './providers/AuthProvider.jsx'
 import AlertProvider from './providers/AlertProvider.jsx'
+import "react-toastify/dist/ReactToastify.css";
 
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);

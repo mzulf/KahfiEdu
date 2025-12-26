@@ -1,9 +1,9 @@
 // src/pages/Auth/pendaftaran/DaftarOrtu.jsx
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { 
-  Box, 
-  Typography, 
+import {
+  Box,
+  Typography,
   Card,
   Button,
   TextField,
@@ -23,14 +23,12 @@ import CloseIcon from "@mui/icons-material/Close";
 export default function DaftarOrtu() {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Ambil semua data dari step sebelumnya
-  const { program, kelas, kategori, formProgram, dataAnak } = location.state || {};
 
-  // Dialog success
+  const { program, kelas, kategori, formProgram, dataAnak } =
+    location.state || {};
+
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Form state
   const [formData, setFormData] = useState({
     namaAyahIbu: "",
     wilayahKabupaten: "",
@@ -39,11 +37,14 @@ export default function DaftarOrtu() {
     izinKontenSosmed: ""
   });
 
+  const [errors, setErrors] = useState({});
+
+  /* ===================== */
+  /* Handlers */
+  /* ===================== */
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const handleBack = () => {
@@ -52,11 +53,38 @@ export default function DaftarOrtu() {
     });
   };
 
+  /* ===================== */
+  /* Validation */
+  /* ===================== */
+  const isValidWhatsapp = (value) =>
+    /^[0-9]{10,15}$/.test(value);
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.namaAyahIbu)
+      newErrors.namaAyahIbu = "Nama wajib diisi";
+
+    if (!formData.wilayahKabupaten)
+      newErrors.wilayahKabupaten = "Wilayah wajib diisi";
+
+    if (!formData.noWhatsapp)
+      newErrors.noWhatsapp = "No WhatsApp wajib diisi";
+    else if (!isValidWhatsapp(formData.noWhatsapp))
+      newErrors.noWhatsapp = "Gunakan angka (10–15 digit)";
+
+    if (!formData.izinKontenSosmed)
+      newErrors.izinKontenSosmed = "Pilih salah satu";
+
+    if (!formData.alamatLengkap)
+      newErrors.alamatLengkap = "Alamat wajib diisi";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async () => {
-    if (!formData.namaAyahIbu || !formData.wilayahKabupaten || !formData.noWhatsapp || !formData.alamatLengkap) {
-      alert("Mohon lengkapi semua field yang wajib (*)");
-      return;
-    }
+    if (!validateForm()) return;
 
     const completeData = {
       program,
@@ -67,88 +95,76 @@ export default function DaftarOrtu() {
       ...formData
     };
 
-    console.log("Data lengkap pendaftaran:", completeData);
+    console.log("Data lengkap:", completeData);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
+    await new Promise((r) => setTimeout(r, 800));
     setShowSuccess(true);
   };
 
   const handleSuccessClose = () => {
-  setShowSuccess(false);
-
-  navigate("/siswa/pembayaran/", {
-    state: {
-      program,
-      kelas,
-      kategori,
-      formProgram,
-      dataAnak,
-      orangTua: formData,
-      success: true
-    }
-  });
-};
-
-
-  const handleCloseStayOnPage = () => {
     setShowSuccess(false);
+    navigate("/siswa/pembayaran", {
+      state: {
+        program,
+        kelas,
+        kategori,
+        formProgram,
+        dataAnak,
+        orangTua: formData,
+        success: true
+      }
+    });
   };
 
   return (
     <Box sx={{ backgroundColor: "#F5F5F5", minHeight: "100vh", pb: 4 }}>
-
-      {/* Header Wave */}
+      {/* Header */}
       <Box
         sx={{
           backgroundColor: "#A7F3D0",
-          borderBottomLeftRadius: "50% 30px",
-          borderBottomRightRadius: "50% 30px",
-          pb: 4,
-          pt: 2
+          borderBottomLeftRadius: "50% 40px",
+          borderBottomRightRadius: "50% 40px",
+          pb: 5
         }}
-      >
-        <Container maxWidth="lg"></Container>
-      </Box>
+      />
 
-      <Container maxWidth="md" sx={{ mt: -2 }}>
-
-        {/* Kategori Step */}
+      <Container maxWidth="md" sx={{ mt: -3 }}>
+        {/* Toggle */}
         <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
           <ToggleButtonGroup
             value="orang-tua"
             exclusive
-            sx={{ backgroundColor: "white", borderRadius: 8 }}
+            sx={{
+              backgroundColor: "white",
+              borderRadius: 999,
+              p: 0.5
+            }}
           >
-            <ToggleButton value="umum">
-              <CheckCircleIcon sx={{ mr: 1, fontSize: 18 }} />
-              Umum
-            </ToggleButton>
-
-            <ToggleButton value="anak">
-              <CheckCircleIcon sx={{ mr: 1, fontSize: 18 }} />
-              Anak
-            </ToggleButton>
-
-            <ToggleButton
-              value="orang-tua"
-              selected
-              sx={{
-                "&.Mui-selected": {
-                  backgroundColor: "#10B981",
-                  color: "white"
-                }
-              }}
-            >
-              <CheckCircleIcon sx={{ mr: 1, fontSize: 18 }} />
-              Orang Tua
-            </ToggleButton>
+            {["umum", "anak", "orang-tua"].map((item) => (
+              <ToggleButton
+                key={item}
+                value={item}
+                sx={{
+                  px: 4,
+                  py: 1,
+                  borderRadius: 999,
+                  textTransform: "none",
+                  fontWeight: 500,
+                  "&.Mui-selected": {
+                    backgroundColor: "#10B981",
+                    color: "white"
+                  }
+                }}
+              >
+                <CheckCircleIcon sx={{ mr: 1, fontSize: 18 }} />
+                {item.replace("-", " ").toUpperCase()}
+              </ToggleButton>
+            ))}
           </ToggleButtonGroup>
         </Box>
 
         {/* Form */}
-        <Card sx={{ p: 4, mb: 3 }}>
-
+        <Card sx={{ borderRadius: 3, p: 4 }}>
           <Box
             sx={{
               display: "grid",
@@ -156,135 +172,141 @@ export default function DaftarOrtu() {
               gap: 3
             }}
           >
-            {/* Nama Ayah/Ibu */}
-            <Box>
-              <Typography fontWeight="500" mb={1}>
-                Nama Ayah/Ibu*
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Masukkan nama"
-                value={formData.namaAyahIbu}
-                onChange={(e) => handleInputChange("namaAyahIbu", e.target.value)}
-              />
-            </Box>
+            <TextField
+              label="Nama Ayah / Ibu *"
+              fullWidth
+              value={formData.namaAyahIbu}
+              onChange={(e) =>
+                handleInputChange("namaAyahIbu", e.target.value)
+              }
+              error={Boolean(errors.namaAyahIbu)}
+              helperText={errors.namaAyahIbu}
+            />
 
-            {/* Wilayah */}
-            <Box>
-              <Typography fontWeight="500" mb={1}>
-                Wilayah Kabupaten/Kecamatan*
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="Contoh: Jakarta Selatan"
-                value={formData.wilayahKabupaten}
-                onChange={(e) => handleInputChange("wilayahKabupaten", e.target.value)}
-              />
-            </Box>
+            <TextField
+              label="Wilayah Kabupaten / Kecamatan *"
+              fullWidth
+              value={formData.wilayahKabupaten}
+              onChange={(e) =>
+                handleInputChange("wilayahKabupaten", e.target.value)
+              }
+              error={Boolean(errors.wilayahKabupaten)}
+              helperText={errors.wilayahKabupaten}
+            />
 
-            {/* No WA */}
-            <Box>
-              <Typography fontWeight="500" mb={1}>
-                No Whatsapp*
-              </Typography>
-              <TextField
-                fullWidth
-                placeholder="08xxxxxxxxxx"
-                value={formData.noWhatsapp}
-                onChange={(e) => handleInputChange("noWhatsapp", e.target.value)}
-              />
-            </Box>
+            <TextField
+              label="No WhatsApp *"
+              fullWidth
+              placeholder="08xxxxxxxxxx"
+              value={formData.noWhatsapp}
+              onChange={(e) =>
+                handleInputChange("noWhatsapp", e.target.value)
+              }
+              error={Boolean(errors.noWhatsapp)}
+              helperText={errors.noWhatsapp}
+            />
 
-            {/* Izin Sosmed */}
-            <Box>
-              <Typography fontWeight="500" mb={1}>
-                Izin Konten Sosmed*
-              </Typography>
-              <FormControl fullWidth>
-                <Select
-                  value={formData.izinKontenSosmed}
-                  onChange={(e) => handleInputChange("izinKontenSosmed", e.target.value)}
-                  displayEmpty
-                >
-                  <MenuItem value="" disabled>Pilih jawaban</MenuItem>
-                  <MenuItem value="ya">Ya</MenuItem>
-                  <MenuItem value="tidak">Tidak</MenuItem>
-                  <MenuItem value="terbatas">Terbatas</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
+            <FormControl fullWidth error={Boolean(errors.izinKontenSosmed)}>
+              <Select
+                value={formData.izinKontenSosmed}
+                displayEmpty
+                onChange={(e) =>
+                  handleInputChange("izinKontenSosmed", e.target.value)
+                }
+              >
+                <MenuItem value="" disabled>
+                  Izin Konten Sosmed *
+                </MenuItem>
+                <MenuItem value="ya">Ya</MenuItem>
+                <MenuItem value="tidak">Tidak</MenuItem>
+                <MenuItem value="terbatas">Terbatas</MenuItem>
+              </Select>
+              {errors.izinKontenSosmed && (
+                <Typography variant="caption" color="error">
+                  {errors.izinKontenSosmed}
+                </Typography>
+              )}
+            </FormControl>
 
-            {/* Alamat */}
-            <Box sx={{ gridColumn: "1 / -1" }}>
-              <Typography fontWeight="500" mb={1}>
-                Alamat Lengkap*
-              </Typography>
-              <TextField
-                fullWidth
-                multiline
-                rows={3}
-                placeholder="Masukkan alamat lengkap..."
-                value={formData.alamatLengkap}
-                onChange={(e) => handleInputChange("alamatLengkap", e.target.value)}
-              />
-            </Box>
-
+            <TextField
+              label="Alamat Lengkap *"
+              multiline
+              rows={3}
+              fullWidth
+              sx={{ gridColumn: "1 / -1" }}
+              value={formData.alamatLengkap}
+              onChange={(e) =>
+                handleInputChange("alamatLengkap", e.target.value)
+              }
+              error={Boolean(errors.alamatLengkap)}
+              helperText={errors.alamatLengkap}
+            />
           </Box>
         </Card>
 
         {/* Buttons */}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
-          <Button variant="outlined" onClick={handleBack}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 4 }}>
+          <Button
+            onClick={handleBack}
+            sx={{
+              px: 5,
+              py: 1.4,
+              borderRadius: 999,
+              backgroundColor: "#E5E7EB",
+              color: "#374151",
+              "&:hover": { backgroundColor: "#D1D5DB" }
+            }}
+          >
             Kembali
           </Button>
 
-          <Button variant="contained" sx={{ backgroundColor: "#10B981" }} onClick={handleSubmit}>
+          <Button
+            onClick={handleSubmit}
+            sx={{
+              px: 5,
+              py: 1.4,
+              borderRadius: 999,
+              backgroundColor: "#10B981",
+              color: "white",
+              "&:hover": { backgroundColor: "#059669" }
+            }}
+          >
             Submit
           </Button>
         </Box>
       </Container>
 
       {/* Success Dialog */}
-      <Dialog 
-        open={showSuccess} 
-        onClose={handleCloseStayOnPage}
+      <Dialog
+        open={showSuccess}
         maxWidth="sm"
         fullWidth
         PaperProps={{ sx: { borderRadius: 3 } }}
       >
-        {/* Tombol X */}
         <IconButton
-          onClick={handleCloseStayOnPage}
-          sx={{
-            position: "absolute",
-            left: 16,
-            top: 16,
-            color: "#6B7280"
-          }}
+          onClick={() => setShowSuccess(false)}
+          sx={{ position: "absolute", left: 16, top: 16 }}
         >
           <CloseIcon />
         </IconButton>
 
-        <DialogContent sx={{ textAlign: "center", py: 5, px: 4 }}>
+        <DialogContent sx={{ textAlign: "center", py: 5 }}>
           <CheckCircleIcon sx={{ fontSize: 80, color: "#10B981", mb: 2 }} />
-
           <Typography variant="h5" fontWeight="bold" mb={2}>
             Pendaftaran Berhasil!
           </Typography>
-
-          <Typography variant="body1" color="text.secondary" mb={4}>
-            Terima kasih telah mendaftar program {program?.title} - Kelas {kelas?.name}.
-            Tim kami akan segera menghubungi Anda melalui WhatsApp.
+          <Typography color="text.secondary" mb={4}>
+            Tim kami akan menghubungi Anda melalui WhatsApp.
           </Typography>
 
           <Button
             onClick={handleSuccessClose}
-            variant="contained"
             fullWidth
             sx={{
-              backgroundColor: "#10B981",
               py: 1.5,
-              borderRadius: 2
+              borderRadius: 999,
+              backgroundColor: "#10B981",
+              color: "white"
             }}
           >
             LANJUTKAN

@@ -189,19 +189,6 @@ export default function PilihKelas() {
 
       </Container>
 
-      {/* Footer */}
-      <Box
-        sx={{
-          backgroundColor: "#A7F3D0",
-          textAlign: "center",
-          py: 2,
-          mt: 6
-        }}
-      >
-        <Typography variant="caption" color="text.secondary">
-          Copyright © 2025 Kahfi Education, All rights Reserved | Bug report to Phone: +6289987167784
-        </Typography>
-      </Box>
     </Box>
   );
 }

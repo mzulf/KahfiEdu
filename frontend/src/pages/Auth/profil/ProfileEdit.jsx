@@ -1,11 +1,26 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiEdit } from "react-icons/fi";
+import {
+  Box,
+  Container,
+  Avatar,
+  Typography,
+  Card,
+  CardContent,
+  TextField,
+  Button,
+  IconButton,
+  Stack,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 
 const ProfileEdit = () => {
   const navigate = useNavigate();
+  const [avatar, setAvatar] = useState(null);
 
-  const initialUserData = {
+  const [userData, setUserData] = useState({
     name: "John Bee",
     class: "Kelas 2",
     username: "John",
@@ -14,105 +29,205 @@ const ProfileEdit = () => {
     gender: "Male",
     birthDate: "2 Jan 2015",
     password: "********",
-    address: "Kab. Kuta, Bali, Indonesia"
-  };
-
-  const [userData, setUserData] = useState(initialUserData);
-  const [isEditing, setIsEditing] = useState(true);
+    address: "Kab. Kuta, Bali, Indonesia",
+  });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserData((prev) => ({ ...prev, [name]: value }));
+    setUserData({ ...userData, [e.target.name]: e.target.value });
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
-    navigate(-1);
-  };
-
-  const handleSave = () => {
-    setIsEditing(false);
-    navigate("/siswa/profile-detail");
+  const handleAvatarChange = (e) => {
+    if (e.target.files[0]) {
+      setAvatar(URL.createObjectURL(e.target.files[0]));
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
-      {/* Main Content */}
-      <main className="max-w-2xl mx-auto p-4">
-        <div className="bg-white rounded-xl p-6 mt-4">
-          {/* User Profile */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="relative mb-4">
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/4333/4333609.png"
-                alt="Profile"
-                className="w-28 h-28 rounded-full bg-blue-100"
+    <Box minHeight="100vh" bgcolor="#F9FAFB">
+      {/* ================= HEADER ================= */}
+      <Box
+        sx={{
+          background: "linear-gradient(135deg, #047857, #34D399)",
+          pt: 5,
+          pb: 10, // ⬅️ cuma ±1/3 layar
+          borderRadius: "0 0 48px 48px",
+        }}
+      >
+        <Container maxWidth="sm">
+          <IconButton
+            onClick={() => navigate(-1)}
+            sx={{ color: "white", mb: 1 }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+
+          <Typography
+            variant="h5"
+            fontWeight={700}
+            color="white"
+            textAlign="center"
+            sx={{ mt: 3, mb: 2 }} // ⬅️ JARAK AMAN DARI AVATAR
+          >
+            Edit Profil
+          </Typography>
+        </Container>
+      </Box>
+
+      {/* ================= CONTENT ================= */}
+      <Container maxWidth="sm" sx={{ mt: "-80px", pb: 10 }}>
+        <Card
+          sx={{
+            borderRadius: 4,
+            boxShadow: "0 24px 50px rgba(0,0,0,0.18)",
+          }}
+        >
+          <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+            {/* ===== AVATAR ===== */}
+            <Box textAlign="center" mb={4}>
+              <Box sx={{ position: "relative", display: "inline-block" }}>
+                <Box
+                  sx={{
+                    p: 0.8,
+                    borderRadius: "50%",
+                    background:
+                      "linear-gradient(135deg, #047857, #34D399)",
+                  }}
+                >
+                  <Avatar
+                    src={avatar || undefined}
+                    sx={{
+                      width: 110,
+                      height: 110,
+                      bgcolor: "#ECFDF5",
+                      boxShadow: "0 10px 24px rgba(0,0,0,0.25)",
+                    }}
+                  >
+                    {!avatar && (
+                      <PersonOutlineIcon
+                        sx={{ fontSize: 52, color: "#047857" }}
+                      />
+                    )}
+                  </Avatar>
+                </Box>
+
+                <IconButton
+                  component="label"
+                  sx={{
+                    position: "absolute",
+                    bottom: 6,
+                    right: 6,
+                    bgcolor: "#047857",
+                    color: "white",
+                    boxShadow: 2,
+                    "&:hover": { bgcolor: "#065F46" },
+                  }}
+                >
+                  <EditIcon fontSize="small" />
+                  <input
+                    hidden
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                  />
+                </IconButton>
+              </Box>
+
+              <Typography fontWeight={700} mt={2}>
+                {userData.name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {userData.class}
+              </Typography>
+            </Box>
+
+            {/* ===== FORM ===== */}
+            <Stack spacing={3}>
+              <TextField
+                label="Username"
+                name="username"
+                value={userData.username}
+                onChange={handleChange}
+                fullWidth
               />
-              <div className="absolute bottom-0 right-0 bg-black text-white rounded-full p-1">
-                <FiEdit className="text-sm" />
-              </div>
-            </div>
-            <h2 className="text-xl font-semibold">{userData.name}</h2>
-            <p className="text-sm text-gray-600">{userData.class}</p>
-          </div>
+              <TextField
+                label="No. Telp"
+                name="phone"
+                value={userData.phone}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField label="Email" value={userData.email} disabled fullWidth />
+              <TextField
+                label="Gender"
+                name="gender"
+                value={userData.gender}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Tanggal Lahir"
+                name="birthDate"
+                value={userData.birthDate}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Password"
+                name="password"
+                type="password"
+                value={userData.password}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Alamat"
+                name="address"
+                value={userData.address}
+                onChange={handleChange}
+                multiline
+                rows={3}
+                fullWidth
+              />
+            </Stack>
 
-          {/* User Information */}
-          <div className="space-y-4">
-            {[
-              { label: "Username", name: "username" },
-              { label: "No. Telp", name: "phone" },
-              { label: "Email", name: "email" },
-              { label: "Gender", name: "gender" },
-              { label: "Tanggal lahir", name: "birthDate" },
-              { label: "Password", name: "password", type: "password" },
-              { label: "Alamat", name: "address" }
-            ].map(({ label, name, type }) => (
-              <div key={name} className="border-b pb-2">
-                <div className="flex justify-between items-center">
-                  <div className="text-sm text-gray-600">{label}</div>
-                  {isEditing && name !== "email" ? (
-                    <input
-                      type={type || "text"}
-                      name={name}
-                      value={userData[name]}
-                      onChange={handleChange}
-                      className={`text-right w-full px-2 py-1 ${name === "email" ? "text-gray-500" : ""}`}
-                      disabled={name === "email"} // Email is not editable in design
-                    />
-                  ) : (
-                    <div className="text-right">
-                      {name === "email" ? (
-                        <a href={`mailto:${userData.email}`} className="text-blue-600">
-                          {userData.email}
-                        </a>
-                      ) : (
-                        userData[name]
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+            {/* ===== ACTION BUTTONS ===== */}
+            <Box
+              sx={{
+                mt: 5,
+                display: "flex",
+                justifyContent: "center",
+                gap: 2,
+              }}
+            >
+              <Button
+                variant="outlined"
+                onClick={() => navigate(-1)}
+                sx={{
+                  borderRadius: 2,
+                  px: 4,
+                  textTransform: "none",
+                }}
+              >
+                Cancel
+              </Button>
 
-          {/* Action Buttons */}
-          <div className="mt-8 flex justify-center gap-4">
-            <button
-              onClick={handleCancel}
-              className="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </main>
-    </div>
+              <Button
+                variant="contained"
+                sx={{
+                  borderRadius: 2,
+                  px: 4,
+                  textTransform: "none",
+                  bgcolor: "#047857",
+                  "&:hover": { bgcolor: "#065F46" },
+                }}
+              >
+                Save Changes
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+      </Container>
+    </Box>
   );
 };
 

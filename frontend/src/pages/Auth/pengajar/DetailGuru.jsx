@@ -12,113 +12,90 @@ import {
 import axios from "../../../libs/axiosInstance";
 import { toast } from "react-toastify";
 
-const DetailGuru = () => {
+export default function DetailGuru() {
   const { id } = useParams();
-
   const [guru, setGuru] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
-
     const fetchGuru = async () => {
       setLoading(true);
       try {
         const res = await axios.get(`/user/${id}`);
         setGuru(res.data.user);
-      } catch (err) {
+      } catch {
         toast.error("Gagal mengambil detail guru");
       } finally {
         setLoading(false);
       }
     };
-
     fetchGuru();
   }, [id]);
 
-  if (loading) {
+  if (loading)
     return (
-      <Box
-        sx={{ display: "flex", justifyContent: "center", marginTop: "2rem" }}
-      >
+      <Box display="flex" justifyContent="center" mt={6}>
         <CircularProgress />
       </Box>
     );
-  }
 
-  if (!guru) {
+  if (!guru)
     return (
       <Container>
-        <Typography variant="h6" sx={{ mt: 4 }}>
-          Detail guru tidak ditemukan
-        </Typography>
+        <Typography mt={4}>Data guru tidak ditemukan</Typography>
       </Container>
     );
-  }
-
-  const {
-    name,
-    email,
-    phone,
-    alamat,
-    village,
-    district,
-    regency,
-    province,
-    avatar,
-  } = guru;
 
   const fullAddress = [
-    alamat,
-    village,
-    district,
-    regency,
-    province,
-  ].filter(Boolean).join(", ");
+    guru.alamat,
+    guru.village,
+    guru.district,
+    guru.regency,
+    guru.province,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return (
-    <Container sx={{ mt: 6, mb: 6 }}>
-      <Paper sx={{ p: 4, borderRadius: 3 }}>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 4,
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
+    <Container maxWidth="sm" sx={{ mt: 7, mb: 7 }}>
+      <Paper
+        sx={{
+          p: 4,
+          borderRadius: 4,
+          border: "2px solid #A7F3D0",
+          boxShadow: "0 12px 32px rgba(0,0,0,.2)",
+        }}
+      >
+        <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
           <Avatar
-            src={avatar}
-            alt={name}
-            sx={{ width: 100, height: 100 }}
-          />
+            src={guru.avatar}
+            sx={{
+              width: 110,
+              height: 110,
+              bgcolor: "#047857",
+              boxShadow: "0 6px 16px rgba(0,0,0,.3)",
+            }}
+          >
+            {!guru.avatar && guru.name?.[0]}
+          </Avatar>
 
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-              {name}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {email}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {phone || "-"}
-            </Typography>
-          </Box>
+          <Typography variant="h5" fontWeight="bold">
+            {guru.name}
+          </Typography>
+          <Typography color="text.secondary">{guru.email}</Typography>
+          <Typography color="text.secondary">{guru.phone || "-"}</Typography>
         </Box>
 
         <Divider sx={{ my: 3 }} />
 
-        <Box>
-          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-            Alamat
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {fullAddress || "-"}
-          </Typography>
-        </Box>
+        <Typography fontWeight="bold" mb={1}>
+          Alamat
+        </Typography>
+        <Typography color="text.secondary">
+          {fullAddress || "-"}
+        </Typography>
       </Paper>
     </Container>
   );
-};
-
-export default DetailGuru;
+}
