@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+@import "tailwindcss";
+
+
+
+@theme {
+    /* Font Sizes */
+    --fs-xs: 0.75rem;
+    /* 12px */
+    --fs-sm: 0.875rem;
+    /* 14px */
+    --fs-base: 1rem;
+    /* 16px */
+    --fs-lg: 1.125rem;
+    /* 18px */
+    --fs-xl: 1.25rem;
+    /* 20px */
+    --fs-2xl: 1.5rem;
+    /* 24px */
+    --fs-3xl: 1.875rem;
+    /* 30px */
+    --fs-4xl: 2.25rem;
+    /* 36px */
+    --fs-5xl: 3rem;
+    /* 48px */
+    --fs-6xl: 3.75rem;
+    /* 60px */
+}
+
+/* Font Size Utility Classes */
+.text-xs {
+    font-size: var(--fs-xs);
+}
+
+.text-sm {
+    font-size: var(--fs-sm);
+}
+
+.text-base {
+    font-size: var(--fs-base);
+}
+
+.text-lg {
+    font-size: var(--fs-lg);
+}
+
+.text-xl {
+    font-size: var(--fs-xl);
+}
+
+.text-2xl {
+    font-size: var(--fs-2xl);
+}
+
+.text-3xl {
+    font-size: var(--fs-3xl);
+}
+
+.text-4xl {
+    font-size: var(--fs-4xl);
+}
+
+.text-5xl {
+    font-size: var(--fs-5xl);
+}
+
+.text-6xl {
+    font-size: var(--fs-6xl);
+}
+
+/* Responsive Font Sizes */
+@media screen and (max-width: 768px) {
+    :root {
+        --fs-6xl: 3rem;
+        /* 48px */
+        --fs-5xl: 2.25rem;
+        /* 36px */
+        --fs-4xl: 1.875rem;
+        /* 30px */
+        --fs-3xl: 1.5rem;
+        /* 24px */
+        --fs-2xl: 1.25rem;
+        /* 20px */
+        --fs-xl: 1.125rem;
+        /* 18px */
+        --fs-lg: 1rem;
+        /* 16px */
+        --fs-base: 0.875rem;
+        /* 14px */
+    }
+}
+
+@theme {
+    --font-poppins: 'Poppins', sans-serif;
+    --font-monstera: 'Monstera', sans-serif;
+    --font-roboto: 'Roboto', sans-serif;
+}
+
+@theme {
+    --color-kahf-green: #0D9F66;
+}
+
+.logo {
+    height: 6em;
+    padding: 1.5em;
+    will-change: filter;
+    transition: filter 300ms;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+    filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    a:nth-of-type(2) .logo {
+        animation: logo-spin infinite 20s linear;
+    }
+}
+
+.card {
+    padding: 2em;
+}
+
+.read-the-docs {
+    color: #888;
+}
