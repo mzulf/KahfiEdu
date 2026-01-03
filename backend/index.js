@@ -20,38 +20,54 @@ validateEnv();
 const app = express();
 const server = http.createServer(app);
 
+/* ===============================
+   🔥 WAJIB: BODY PARSER
+================================ */
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use("/uploads", express.static("uploads"));
 
-// Configure middleware
+/* ===============================
+   MIDDLEWARE
+================================ */
 configureLogging(app);
 app.use(corsHelper());
+
+// 🔐 API KEY SETELAH BODY PARSER
 app.use(apiKeyMiddleware);
+
+// middleware lain
 configureMiddleware(app, redisClient);
 
-// API routes
+/* ===============================
+   ROUTES
+================================ */
 const v = process.env.API_VERSION || "v1";
 app.use(`/api/${v}/`, route);
 
-// Error handling
+/* ===============================
+   ERROR HANDLING
+================================ */
 configureErrorHandling(app);
 
-// Start server
+/* ===============================
+   SERVER START
+================================ */
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, async () => {
     try {
-        // Database connection
         await sequelize.authenticate();
         console.log("✅ Database connected");
 
-        // Socket.IO initialization
         await initSocket(server);
         console.log("📡 Socket.IO initialized");
 
-        // Redis health check
         const redisStatus = await redisClient.ping();
-        console.log(redisStatus === "PONG"
-            ? "🟥 Redis connected"
-            : "⚠️ Redis connection issue"
+        console.log(
+            redisStatus === "PONG"
+                ? "🟥 Redis connected"
+                : "⚠️ Redis connection issue"
         );
 
         console.log(`🚀 Server running at http://localhost:${PORT}`);
@@ -61,9 +77,11 @@ server.listen(PORT, async () => {
     }
 });
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-    console.log('📝 Shutting down gracefully...');
+/* ===============================
+   GRACEFUL SHUTDOWN
+================================ */
+process.on("SIGTERM", async () => {
+    console.log("📝 Shutting down gracefully...");
     await server.close();
     await sequelize.close();
     await redisClient.quit();

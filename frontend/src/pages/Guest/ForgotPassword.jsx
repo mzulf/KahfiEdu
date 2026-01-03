@@ -1,16 +1,36 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import KahfLogo from '../../components/KahfLogo';
 import FormInput from '../../components/UI/FormInput';
+import axiosInstance from '../../libs/axiosInstance';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Check your email for reset instructions');
-    navigate('/reset-password');
+    setErrorMsg('');
+
+    if (!email) {
+      setErrorMsg('Email wajib diisi!');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      await axiosInstance.post('/auth/forgot-password', { email });
+
+      alert('Silakan cek email Anda untuk reset password');
+    } catch (error) {
+      setErrorMsg(
+        error.response?.data?.message ||
+        'Gagal mengirim email reset password'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -19,7 +39,11 @@ const ForgotPassword = () => {
         <div className="flex justify-center mb-4">
           <KahfLogo className="h-6 md:h-8" />
         </div>
-        <h2 className="text-xl font-bold mb-4 text-center">Forgot Password</h2>
+
+        <h2 className="text-xl font-bold mb-4 text-center">
+          Forgot Password
+        </h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block mb-2 text-sm font-medium">Email</label>
@@ -31,12 +55,20 @@ const ForgotPassword = () => {
               required
             />
           </div>
+
+          {errorMsg && (
+            <p className="text-red-500 text-sm text-center">
+              {errorMsg}
+            </p>
+          )}
+
           <div className="flex justify-center mt-6">
             <button
               type="submit"
-              className="px-12 py-2.5 bg-kahf-green text-white rounded-full hover:bg-green-700 transition-colors"
+              disabled={loading}
+              className="px-12 py-2.5 bg-kahf-green text-white rounded-full hover:bg-green-700 transition-colors disabled:opacity-50"
             >
-              Send Reset Link
+              {loading ? 'Sending...' : 'Send Reset Link'}
             </button>
           </div>
         </form>

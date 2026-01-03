@@ -40,7 +40,6 @@ const {
 
 // ================== EXTRA ==================
 const guruRoute = require("./guruRoute");
-const adminAuthRoute = require("./adminAuthRoute");
 
 // ================== PUBLIC ROUTES ==================
 router.use("/auth", authRoute);
