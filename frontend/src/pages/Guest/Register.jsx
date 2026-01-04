@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from '../../libs/axiosInstance';
 import AuthLayout from '../../components/AuthLayout';
-import FormInput from '../../components/UI/FormInput';
+import FormInput from '../../components/Ui/FormInput';
 
 const Register = () => {
   const navigate = useNavigate();

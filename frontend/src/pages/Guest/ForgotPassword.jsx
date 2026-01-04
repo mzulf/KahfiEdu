@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import KahfLogo from '../../components/KahfLogo';
-import FormInput from '../../components/UI/FormInput';
+import FormInput from '../../components/Ui/FormInput';
 import axiosInstance from '../../libs/axiosInstance';
 
 const ForgotPassword = () => {

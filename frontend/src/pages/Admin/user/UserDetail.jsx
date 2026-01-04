@@ -7,7 +7,7 @@ import {
 } from "@mui/material"
 
 
-import CustomeCalender from "../../../components/UI/CustomeCalender";
+import CustomeCalender from "../../../components/Ui/CustomeCalender";
 import { HiChat, HiDownload } from "react-icons/hi"
 import { capitalizeWords } from "../../../utils/formatedFont"
 import formatDate from "../../../utils/formatDate"
