@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import KahfLogo from '../../components/KahfLogo';
-import FormInput from '../../components/UI/FormInput';
+import FormInput from '../../components/Ui/FormInput';
 import axiosInstance from '../../libs/axiosInstance';
 
 const ResetPassword = () => {
