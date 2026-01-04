@@ -1,12 +1,10 @@
 'use strict';
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('users', {
       id: {
         allowNull: false,
-        unique: true,
         primaryKey: true,
         type: Sequelize.STRING(36),
         defaultValue: Sequelize.UUIDV4,
@@ -15,82 +13,74 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      alamat: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      province: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      regency: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      district: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      village: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
+      alamat: Sequelize.STRING,
+      province: Sequelize.STRING,
+      regency: Sequelize.STRING,
+      district: Sequelize.STRING,
+      village: Sequelize.STRING,
+
       email: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true,
       },
-      emailVerified: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
-      roleId: {
-        type: Sequelize.STRING(36),
-        defaultValue: Sequelize.UUIDV4,
-        references: {
-          model: 'roles',
-          key: 'id'
-        },
-        onDelete: 'CASCADE',
-        allowNull: false
-      },
-      gender: {
-        type: Sequelize.ENUM('laki-laki', 'perempuan'),
-        allowNull: true,
-      },
-      phone: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
+
       password: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      avatar: {
-        type: Sequelize.STRING,
+
+      isVerified: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+
+      verifiedAt: {
+        type: Sequelize.DATE,
         allowNull: true,
       },
+
+      emailVerified: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+
+      gender: {
+        type: Sequelize.ENUM('laki-laki', 'perempuan'),
+        allowNull: true,
+      },
+
+      phone: Sequelize.STRING,
+      avatar: Sequelize.STRING,
+
       googleId: {
         type: Sequelize.STRING,
         allowNull: true,
-        unique: true
+        unique: true,
       },
+
+      roleId: {
+        type: Sequelize.STRING(36),
+        allowNull: false,
+        references: {
+          model: 'roles',
+          key: 'id'
+        },
+        onDelete: 'CASCADE'
+      },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.fn('NOW')
       },
-      updatedAt: {
-        allowNull: true,
-        type: Sequelize.DATE
-      },
-      deletedAt: {
-        allowNull: true,
-        type: Sequelize.DATE
-      }
+      updatedAt: Sequelize.DATE,
+      deletedAt: Sequelize.DATE
     });
   },
-  async down(queryInterface, Sequelize) {
+
+  async down(queryInterface) {
     await queryInterface.dropTable('users');
   }
 };

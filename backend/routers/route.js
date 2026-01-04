@@ -41,24 +41,23 @@ const {
 // ================== EXTRA ==================
 const guruRoute = require("./guruRoute");
 
-// ================== PUBLIC ==================
+// ================== PUBLIC ROUTES ==================
 router.use("/auth", authRoute);
-router.use("/auth", otpRoute);
+router.use("/auth", otpRoute); // ✅ PENTING: aktifkan otp route
 router.use(googleAuthRoute);
 
-// public tanpa token
 router.use("/guru", guruRoute);
 router.use(courseRoute);
 router.use(blogRoute);
 router.use(jobRoute);
 
-// ================== TOKEN ==================
+// ================== PROTECTED ROUTES ==================
 router.use(validateToken);
 
 // ================== VALIDATION ==================
 router.use("/validate/user", validateDataUser);
 
-// ================== CORE ==================
+// ================== CORE ROUTES ==================
 router.use(userRoute);
 router.use(roleRoute);
 router.use(revisionRoute);
@@ -69,9 +68,7 @@ router.use(bankRoute);
 router.use(paymentRoute);
 
 // ================== EDUCATION ==================
-// 🔥 FIX UTAMA: JANGAN DIMASUKIN ARRAY
 router.use("/materi", materiRoute);
-
 router.use(childrenRoute);
 router.use(categoryRoute);
 router.use(classRoute);
@@ -88,7 +85,7 @@ router.use(regionRoute);
 router.use(importRoute);
 router.use(exportRoute);
 
-// ================== DEV ==================
+// ================== DEV DEBUG ==================
 if (process.env.NODE_ENV === "development") {
   router.get("/debug/jwt", (req, res) => {
     res.status(200).json({

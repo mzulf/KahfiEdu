@@ -101,6 +101,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: true,
       },
+      isVerified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      verifiedAt: {
+       type: DataTypes.DATE,
+       allowNull: true,
+      },
       roleId: {
         type: DataTypes.STRING,
         defaultValue: DataTypes.UUIDV4,
@@ -112,10 +121,6 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       },
       phone: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      gender: {
         type: DataTypes.STRING,
         allowNull: true,
       },

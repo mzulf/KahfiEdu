@@ -1,19 +1,17 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Otp extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // contoh relasi jika diperlukan, misal:
-      Otp.belongsTo(models.User, { foreignKey: 'userId' });
+      // OPTIONAL RELATION
+      Otp.belongsTo(models.User, {
+        foreignKey: 'userId',
+        constraints: false
+      });
     }
   }
+
   Otp.init({
     id: {
       type: DataTypes.STRING(36),
@@ -22,36 +20,48 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.UUIDV4,
     },
     userId: {
+      type: DataTypes.STRING(36),
+      allowNull: true,
+    },
+    email: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
     code: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+    },
+    expiredAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     isVerified: {
       type: DataTypes.BOOLEAN,
-      allowNull: true
+      defaultValue: false,
+    },
+    tempData: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: sequelize.fn('NOW')
+      defaultValue: sequelize.fn('NOW'),
     },
     updatedAt: {
       type: DataTypes.DATE,
-      allowNull: true
+      allowNull: true,
     },
     deletedAt: {
       type: DataTypes.DATE,
-      allowNull: true
-    }
+      allowNull: true,
+    },
   }, {
     sequelize,
     modelName: 'Otp',
     tableName: 'otps',
-    paranoid: true, // enable soft delete via deletedAt
-    timestamps: true // createdAt & updatedAt
+    timestamps: true,
+    paranoid: true,
   });
 
   return Otp;
