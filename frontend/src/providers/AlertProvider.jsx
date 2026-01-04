@@ -1,4 +1,4 @@
-import CustomAlert from '../components/Ui/CustomeAlert';
+import CustomAlert from '../components/UI/CustomeAlert';
 import AlertContext from '../contexts/AlertContext';
 
 export function AlertProvider({ children }) {
