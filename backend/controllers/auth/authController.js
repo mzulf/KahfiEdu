@@ -1,132 +1,157 @@
 const { User, Otp, Role } = require('../../models');
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 const sendEmail = require('../../helpers/sendEmailHelper');
 const { generateOtp } = require('../../utils/generateOtp');
+const bcrypt = require('bcryptjs');
 const { generateToken, verifyToken } = require('../../helpers/jwtHelper');
+const url = process.env.FRONTEND_URL || 'http://localhost:5173';
 const { handleError, AppError } = require('../../helpers/helperFunction');
 
-const url = process.env.FRONTEND_URL || 'http://localhost:5173';
-
+/* ===============================
+   PASSWORD RULE (SAMA DENGAN FRONTEND)
+=============================== */
 const PASSWORD_REGEX =
   /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
 /* =====================================================
-   REGISTER → KIRIM OTP
+   REGISTER → KIRIM OTP SAJA
 ===================================================== */
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password } = req.body || {};
 
     if (!name || !email || !password) {
-      throw new AppError('Nama, email, dan password wajib diisi', 400);
+      throw new AppError('Nama, email, dan password wajib diisi!', 400);
     }
 
     if (!PASSWORD_REGEX.test(password)) {
-      throw new AppError('Password tidak memenuhi aturan', 400);
+      throw new AppError(
+        'Password minimal 8 karakter, harus ada huruf besar, kecil, angka, dan simbol.',
+        400
+      );
     }
 
-    const exist = await User.findOne({ where: { email } });
-    if (exist) throw new AppError('Email sudah terdaftar', 400);
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      throw new AppError('Email sudah terdaftar!', 400);
+    }
 
-    const role = await Role.findOne({ where: { name: 'student' } });
-    if (!role) throw new AppError('Role student tidak ditemukan', 500);
+    const studentRole = await Role.findOne({ where: { name: 'student' } });
+    if (!studentRole) {
+      throw new AppError('Role student tidak ditemukan!', 500);
+    }
 
+    // Hapus OTP lama
     await Otp.destroy({ where: { email } });
 
     const otp = generateOtp();
+
+    // ⏱️ OTP EXPIRED 5 MENIT
     const expiredAt = new Date(Date.now() + 5 * 60 * 1000);
 
     await Otp.create({
       id: uuidv4(),
-      email,
       code: otp,
-      expiredAt,
+      email,
+      expiredAt,          // 🔥 WAJIB
       isVerified: false,
       tempData: JSON.stringify({
         name,
         email,
         password,
-        roleId: role.id
+        roleId: studentRole.id
       })
     });
 
     await sendEmail(
       email,
       'Verifikasi Email',
-      `<h2>Kode OTP</h2><h1>${otp}</h1>`
+      `<h2>Kode OTP Anda</h2><h1>${otp}</h1><p>Berlaku 5 menit</p>`
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: 'OTP dikirim ke email'
+      message: 'Kode OTP telah dikirim ke email Anda.'
     });
-  } catch (e) {
-    handleError(e, res);
+  } catch (error) {
+    return handleError(error, res);
   }
 };
-
 /* =====================================================
    CONFIRM OTP
 ===================================================== */
 const confirmOtp = async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    const { otp } = req.body || {};
 
-    const record = await Otp.findOne({
-      where: { email, code: otp, isVerified: false },
+    if (!otp || otp.length !== 6) {
+      throw new AppError('Kode OTP tidak valid!', 400);
+    }
+
+    const otpRecord = await Otp.findOne({
+      where: { code: otp, isVerified: false },
       order: [['createdAt', 'DESC']]
     });
 
-    if (!record) throw new AppError('OTP tidak valid', 400);
-    if (record.expiredAt < new Date()) throw new AppError('OTP kadaluarsa', 400);
+    if (!otpRecord) {
+      throw new AppError('Kode OTP tidak ditemukan atau sudah digunakan!', 400);
+    }
 
-    const data = JSON.parse(record.tempData);
+    const tempData = JSON.parse(otpRecord.tempData);
 
-    const user = await User.create({
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      roleId: data.roleId,
-      isVerified: true,
-      verifiedAt: new Date(),
+    // ✅ JANGAN HASH DI SINI
+    const newUser = await User.create({
+      name: tempData.name,
+      email: tempData.email,
+      password: tempData.password, // 🔥 PLAIN
+      roleId: tempData.roleId,
       emailVerified: new Date()
     });
 
-    await record.destroy();
+    await otpRecord.update({ isVerified: true });
 
     const token = generateToken({
-      userId: user.id,
-      email: user.email,
+      userId: newUser.id,
+      email: newUser.email,
       role: 'student'
     });
 
-    res.json({
+    return res.status(200).json({
       success: true,
+      message: 'Email berhasil diverifikasi!',
       token,
       role: 'student'
     });
-  } catch (e) {
-    handleError(e, res);
+  } catch (error) {
+    return handleError(error, res);
   }
 };
+
 
 /* =====================================================
    LOGIN
 ===================================================== */
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
+
+    if (!email || !password) {
+      throw new AppError('Email dan password wajib diisi!', 400);
+    }
 
     const user = await User.findOne({
       where: { email },
-      include: [{ model: Role, as: 'role' }]
+      include: [{ model: Role, as: 'role', attributes: ['id', 'name'] }]
     });
 
-    if (!user) throw new AppError('Akun tidak ditemukan', 404);
-    if (!user.isVerified) throw new AppError('Email belum diverifikasi', 403);
+    if (!user || user.deletedAt) {
+      throw new AppError('Akun dinonaktifkan!', 400);
+    }
 
-    const match = await User.verifyPassword(password, user.password);
-    if (!match) throw new AppError('Password salah', 400);
+    const isMatch = await User.verifyPassword(password, user.password);
+    if (!isMatch) {
+      throw new AppError('Email atau password salah!', 400);
+    }
 
     const token = generateToken({
       userId: user.id,
@@ -134,26 +159,27 @@ const login = async (req, res) => {
       role: user.role.name
     });
 
-    res.json({
+    return res.status(200).json({
       success: true,
+      message: 'Login berhasil!',
       token,
       role: user.role.name
     });
-  } catch (e) {
-    handleError(e, res);
+  } catch (error) {
+    return handleError(error, res);
   }
 };
 
 /* =====================================================
-   RESET PASSWORD (KIRIM LINK)
+   RESET PASSWORD (EMAIL)
 ===================================================== */
 const resetPasswordRequest = async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email) throw new AppError('Email wajib diisi', 400);
+    const { email } = req.body || {};
+    if (!email) throw new AppError('Email wajib diisi!', 400);
 
     const user = await User.findOne({ where: { email } });
-    if (!user) throw new AppError('Email tidak terdaftar', 404);
+    if (!user) throw new AppError('Email tidak terdaftar!', 404);
 
     const token = generateToken(
       { userId: user.id, isPasswordReset: true },
@@ -168,12 +194,12 @@ const resetPasswordRequest = async (req, res) => {
       `<p>Klik link berikut:</p><a href="${resetLink}">Reset Password</a>`
     );
 
-    res.json({
+    return res.status(200).json({
       success: true,
-      message: 'Link reset password dikirim'
+      message: 'Link reset password dikirim ke email.'
     });
-  } catch (e) {
-    handleError(e, res);
+  } catch (error) {
+    return handleError(error, res);
   }
 };
 
@@ -182,41 +208,47 @@ const resetPasswordRequest = async (req, res) => {
 ===================================================== */
 const changePassword = async (req, res) => {
   try {
-    const { newPassword, token, userId } = req.body;
+    const { newPassword, token, userId } = req.body || {};
 
     if (!newPassword || !token || !userId) {
-      throw new AppError('Data tidak lengkap', 400);
+      throw new AppError('Data tidak lengkap!', 400);
     }
 
     if (!PASSWORD_REGEX.test(newPassword)) {
-      throw new AppError('Password tidak memenuhi aturan', 400);
+      throw new AppError(
+        'Password minimal 8 karakter, harus ada huruf besar, kecil, angka, dan simbol.',
+        400
+      );
     }
 
     const decoded = verifyToken(token);
 
+    // Pastikan tipe sama (kadang decoded.userId number/string)
     if (!decoded.isPasswordReset || String(decoded.userId) !== String(userId)) {
-      throw new AppError('Token tidak valid', 401);
+      throw new AppError('Token tidak valid!', 401);
     }
 
     const user = await User.findByPk(userId);
-    if (!user) throw new AppError('User tidak ditemukan', 404);
+    if (!user) throw new AppError('User tidak ditemukan!', 404);
 
+    // ✅ JANGAN HASH DI SINI. BIAR HOOK beforeUpdate yang hash.
     await user.update({ password: newPassword });
 
-    res.json({
+    return res.status(200).json({
       success: true,
-      message: 'Password berhasil diubah'
+      message: 'Password berhasil diubah. Silakan login kembali.'
     });
-  } catch (e) {
-    handleError(e, res);
+  } catch (error) {
+    return handleError(error, res);
   }
 };
+
 
 /* =====================================================
    LOGOUT
 ===================================================== */
 const logout = async (req, res) => {
-  res.json({
+  return res.status(200).json({
     success: true,
     message: 'Logout berhasil'
   });
