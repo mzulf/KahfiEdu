@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import LoadingOverlay from '../components/UI/LoadingOverlay';
+import LoadingOverlay from '../components/Ui/LoadingOverlay';
 import { useAuth } from '../hooks/useAuth';
 import { cookieService } from '../services/cookieService';
 
