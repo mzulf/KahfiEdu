@@ -1,7 +1,13 @@
 import { Box, Container, Grid, Typography } from "@mui/material";
-import { HiBookOpen, HiChatAlt2, HiCheck, HiClock, HiStatusOffline, HiStatusOnline, HiUserGroup } from "react-icons/hi";
+import {
+    HiBookOpen,
+    HiChatAlt2,
+    HiCheck,
+    HiClock,
+    HiStatusOnline,
+    HiUserGroup
+} from "react-icons/hi";
 import FeatureCard from "./FeatureCard";
-
 
 const features = [
     {
@@ -38,40 +44,46 @@ const features = [
 
 export default function KenapaSection() {
     return (
-        <div>
+        <Box>
             <Container>
                 <Typography
-                    variant="h4"
                     component="p"
-                    fontSize={42}
-                    fontWeight='bold'
+                    fontWeight="bold"
+                    sx={{
+                        fontSize: { xs: 28, sm: 34, md: 42 },
+                        textAlign: { xs: "center", md: "left" },
+                    }}
                 >
                     Kenapa Pilih Kahfi Education?
                 </Typography>
+
                 <Typography
-                    variant="body2"
                     component="p"
-                    fontSize={20}
                     fontWeight={300}
+                    sx={{
+                        fontSize: { xs: 16, sm: 18, md: 20 },
+                        mt: 1,
+                        textAlign: { xs: "center", md: "left" },
+                    }}
                 >
                     Kahfi Education menawarkan pembelajaran Al-Qur’an online dan privat yang fleksibel, didampingi oleh pengajar tersertifikasi dan metode yang terstruktur.
                 </Typography>
             </Container>
-            <div
-                style={{
-                    width: '100%',
+
+            <Box
+                sx={{
+                    width: "100%",
                     backgroundImage: `url('/img/ilustrasi/bg-why.png')`,
-                    backgroundSize: 'cover',
-                    minHeight: '400px',
-                    display: 'flex',
-                    alignItems: 'center',
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    mt: 5,
+                    py: { xs: 4, md: 8 },
                 }}
-                className="mt-10 py-10"
             >
                 <Container>
-                    <Grid container spacing={4}>
+                    <Grid container spacing={{ xs: 3, md: 4 }}>
                         {features.map((feature, index) => (
-                            <Grid size={{ xs: 12, md: 4 }} key={index}>
+                            <Grid item xs={12} sm={6} md={4} key={index}>
                                 <FeatureCard
                                     icon={feature.icon}
                                     title={feature.title}
@@ -81,7 +93,7 @@ export default function KenapaSection() {
                         ))}
                     </Grid>
                 </Container>
-            </div>
-        </div>
-    )
+            </Box>
+        </Box>
+    );
 }

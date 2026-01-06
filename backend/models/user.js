@@ -137,6 +137,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'User',
+      tableName: 'users', 
       paranoid: true, // enable soft delete (adds deletedAt)
       timestamps: true, // default true, but better to be explicit
       hooks: {

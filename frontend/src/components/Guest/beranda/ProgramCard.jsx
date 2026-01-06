@@ -1,25 +1,47 @@
-import { Typography } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 
 export default function ProgramCard({ image, title, desc, isOdd }) {
     return (
-        <div className={`flex flex-col justify-center space-y-6 ${isOdd ? 'mt-20' : ''}`}>
-            <img src={image} alt={title} className="mx-auto" />
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                gap: { xs: 3, md: 6 },
+                mt: { xs: 0, md: isOdd ? 10 : 0 },
+            }}
+        >
+            <Box
+                component="img"
+                src={image}
+                alt={title}
+                sx={{
+                    mx: "auto",
+                    maxWidth: "100%",
+                    height: "auto",
+                }}
+            />
+
             <Typography
-                variant="h4"
                 component="p"
-                fontSize={20}
                 fontWeight="bold"
                 textAlign="center"
+                sx={{
+                    fontSize: { xs: 18, md: 20 },
+                }}
             >
                 {title}
             </Typography>
+
             <Typography
-                fontSize={16}
                 fontWeight={300}
                 textAlign="center"
+                sx={{
+                    fontSize: { xs: 14, md: 16 },
+                }}
             >
                 {desc}
             </Typography>
-        </div>
+        </Box>
     );
 }

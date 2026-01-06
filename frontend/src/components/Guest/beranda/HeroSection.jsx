@@ -1,74 +1,98 @@
 import { Box, Container, Typography, Button, Grid } from '@mui/material';
 import { HiUser, HiCalendar, HiBadgeCheck } from 'react-icons/hi';
+import { useNavigate } from 'react-router-dom';
 
 export default function HeroSection() {
+    const navigate = useNavigate();
+
     return (
-        <div className='relative min-h-[100vh] flex justify-start items-center' style={{ backgroundImage: `url('/img/hero.png')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <Box
+            sx={{
+                minHeight: "100vh",
+                display: "flex",
+                alignItems: "center",
+                backgroundImage: `url('/img/hero.png')`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                position: "relative",
+            }}
+        >
             <Container maxWidth="lg">
-                <Box className="flex flex-col md:flex-row items-center justify-between" maxWidth='50%'>
-                    <Box className="flex-1 text-center md:text-left text-white">
-                        <Typography
-                            variant="h4"
-                            component="p"
-                            fontSize={80}
-                            fontWeight='bold'
-                        >
-                            Kahfi
-                            Education
-                        </Typography>
-                        <Typography
-                            component="p"
-                            fontSize={28}
-                            fontWeight={400}
-                        >
-                            Belajar Al-Qur’an Jadi Lebih Mudah & Personal
-                        </Typography>
+                <Box
+                    sx={{
+                        maxWidth: { xs: "100%", md: "50%" },
+                        textAlign: { xs: "center", md: "left" },
+                    }}
+                >
+                    <Typography
+                        component="p"
+                        fontWeight="bold"
+                        sx={{
+                            fontSize: { xs: 42, sm: 56, md: 80 },
+                            color: "white",
+                        }}
+                    >
+                        Kahfi Education
+                    </Typography>
 
-                        <Box className="flex flex-col md:flex-row gap-4 mt-6 justify-center md:justify-start">
-                            <Button
-                                variant="contained"
-                                className='!bg-kahf-green !text-white !py-4 !px-10'
-                            >
-                                Pilih Program
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                className='!text-white !border-white !py-4 !px-10'
-                            >
-                                Daftar Sekarang
-                            </Button>
-                        </Box>
+                    <Typography
+                        component="p"
+                        sx={{
+                            fontSize: { xs: 18, md: 28 },
+                            color: "white",
+                        }}
+                    >
+                        Belajar Al-Qur’an Jadi Lebih Mudah & Personal
+                    </Typography>
 
-                        <Box className="mt-8  text-green-700">
-                            <Grid container spacing={3} justifyContent="space-around">
-                                <Grid size={{ xs: 12, md: 4 }}>
-                                    <Box className="flex flex-col h-full gap-4 items-center justify-center text-center bg-slate-50 rounded-sm p-2">
-                                        <HiUser size={28} />
-                                        <Typography variant="body2" fontWeight={500} className="mt-2">Privat</Typography>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: { xs: "column", sm: "row" },
+                            gap: 2,
+                            mt: 4,
+                            justifyContent: { xs: "center", md: "flex-start" },
+                        }}
+                    >
+                        <Button
+                            variant="outlined"
+                            onClick={() => navigate("/register")}
+                            className="!text-white !border-white !py-4 !px-10"
+                        >
+                            Daftar Sekarang
+                        </Button>
+                    </Box>
+
+                    <Box mt={6}>
+                        <Grid container spacing={2}>
+                            {[HiUser, HiCalendar, HiBadgeCheck].map((Icon, i) => (
+                                <Grid item xs={12} sm={4} key={i}>
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "center",
+                                            gap: 1,
+                                            bgcolor: "white",
+                                            borderRadius: 1,
+                                            p: 2,
+                                        }}
+                                    >
+                                        <Icon size={28} />
+                                        <Typography fontWeight={500}>
+                                            {["Privat", "Fleksibel", "Pengajar"][i]}
+                                        </Typography>
                                     </Box>
                                 </Grid>
-                                <Grid size={{ xs: 12, md: 4 }}>
-                                    <Box className="flex flex-col h-full gap-4 justify-center items-center text-center bg-slate-50 rounded-sm p-2">
-                                        <HiCalendar size={28} />
-                                        <Typography variant="body2" fontWeight={500} className="mt-2">Fleksibel</Typography>
-                                    </Box>
-                                </Grid>
-                                <Grid size={{ xs: 12, md: 4 }}>
-                                    <Box className="flex flex-col gap-4 items-center text-center bg-slate-50 rounded-sm p-2">
-                                        <HiBadgeCheck size={28} />
-                                        <Typography variant="body2" fontWeight={500} className="mt-2">Pengajar</Typography>
-                                    </Box>
-                                </Grid>
-                            </Grid>
-                        </Box>
+                            ))}
+                        </Grid>
                     </Box>
                 </Box>
             </Container>
 
-            {/* img */}
-            <Box className="absolute bottom-0 w-full">
-                <img src="/img/hero.svg" alt="Hero Bottom Decoration" className="w-full h-full" />
+            <Box sx={{ position: "absolute", bottom: 0, width: "100%" }}>
+                <img src="/img/hero.svg" alt="" className="w-full" />
             </Box>
-        </div>
-    )
+        </Box>
+    );
 }

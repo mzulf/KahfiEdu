@@ -17,7 +17,6 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState('');
 
-  /* ================= PASSWORD STRENGTH ================= */
   useEffect(() => {
     if (!newPassword) return setPasswordStrength('');
 
@@ -33,22 +32,6 @@ const ResetPassword = () => {
     else setPasswordStrength('strong');
   }, [newPassword]);
 
-  const validatePassword = () => {
-    const passwordRegex =
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
-
-    if (!passwordRegex.test(newPassword)) {
-      return 'Password minimal 8 karakter, harus ada huruf besar, kecil, angka, dan simbol.';
-    }
-
-    if (newPassword !== confirmPassword) {
-      return 'Konfirmasi password tidak cocok.';
-    }
-
-    return null;
-  };
-
-  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
@@ -58,49 +41,33 @@ const ResetPassword = () => {
       return;
     }
 
-    const validationError = validatePassword();
-    if (validationError) {
-      setErrorMsg(validationError);
-      return;
-    }
-
     try {
       setLoading(true);
-
       await axiosInstance.post('/auth/reset-password', {
         newPassword,
         token,
         userId
       });
-
-      alert('Password berhasil diubah. Silakan login kembali.');
       navigate('/login');
     } catch (error) {
-      setErrorMsg(
-        error.response?.data?.message ||
-        'Gagal reset password'
-      );
+      setErrorMsg(error.response?.data?.message || 'Gagal reset password');
     } finally {
       setLoading(false);
     }
   };
 
-  /* ================= PASSWORD BADGE ================= */
   const renderStrength = () => {
     if (!passwordStrength) return null;
-
     const color = {
       weak: 'bg-red-500',
       medium: 'bg-yellow-500',
       strong: 'bg-green-600',
     };
-
     const text = {
       weak: 'Lemah',
       medium: 'Sedang',
       strong: 'Kuat',
     };
-
     return (
       <span className={`ml-2 px-2 py-1 text-xs text-white rounded ${color[passwordStrength]}`}>
         {text[passwordStrength]}
@@ -109,13 +76,13 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100 items-center justify-center">
-      <div className="bg-white rounded-3xl shadow-lg p-6 md:p-8 w-full max-w-md">
+    <div className="flex min-h-screen bg-gray-100 items-center justify-center px-2">
+      <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 w-full max-w-md">
         <div className="flex justify-center mb-4">
-          <KahfLogo className="h-6 md:h-8" />
+          <KahfLogo className="h-6 sm:h-8" />
         </div>
 
-        <h2 className="text-xl font-bold mb-4 text-center">
+        <h2 className="text-lg sm:text-xl font-bold mb-4 text-center">
           Set New Password
         </h2>
 
@@ -128,7 +95,6 @@ const ResetPassword = () => {
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="New password"
               required
             />
           </div>
@@ -141,26 +107,21 @@ const ResetPassword = () => {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm password"
               required
             />
           </div>
 
           {errorMsg && (
-            <p className="text-red-500 text-sm text-center">
-              {errorMsg}
-            </p>
+            <p className="text-red-500 text-sm text-center">{errorMsg}</p>
           )}
 
-          <div className="flex justify-center mt-6">
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-12 py-2.5 bg-kahf-green text-white rounded-full hover:bg-green-700 disabled:opacity-50"
-            >
-              {loading ? 'Processing...' : 'Reset Password'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-kahf-green text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+          >
+            {loading ? 'Processing...' : 'Reset Password'}
+          </button>
         </form>
       </div>
     </div>

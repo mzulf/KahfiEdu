@@ -1,5 +1,5 @@
-import { Container, Grid, Typography } from "@mui/material";
-import ProgramCard from "./ProgramCard"; // pastikan path sesuai
+import { Container, Grid, Typography, Box } from "@mui/material";
+import ProgramCard from "./ProgramCard";
 
 const programs = [
     {
@@ -26,20 +26,32 @@ const programs = [
 
 export default function ProgramSection() {
     return (
-        <div>
+        <Box>
             <Container>
                 <Typography
-                    variant="h4"
                     component="p"
-                    fontSize={42}
                     fontWeight="bold"
                     textAlign="center"
+                    sx={{
+                        fontSize: { xs: 28, sm: 34, md: 42 },
+                    }}
                 >
                     Pilih Program
                 </Typography>
-                <Grid container spacing={4} mt={8}>
+
+                <Grid
+                    container
+                    spacing={{ xs: 4, md: 4 }}
+                    mt={{ xs: 4, md: 8 }}
+                >
                     {programs.map((program, index) => (
-                        <Grid size={{ xs: 12, md: 3 }} key={index}>
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={3}
+                            key={index}
+                        >
                             <ProgramCard
                                 image={program.image}
                                 title={program.title}
@@ -50,6 +62,6 @@ export default function ProgramSection() {
                     ))}
                 </Grid>
             </Container>
-        </div>
+        </Box>
     );
 }

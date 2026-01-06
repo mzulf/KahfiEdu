@@ -13,8 +13,8 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './src'),
       },
     },
-    // penting untuk Netlify / upload manual
-    base: './',
+    // Ubah dari './' jadi '/' untuk Firebase Hosting
+    base: '/',
     build: {
       outDir: 'dist',
       assetsDir: 'assets',

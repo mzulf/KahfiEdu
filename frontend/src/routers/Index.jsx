@@ -43,7 +43,6 @@ import Invoice from "../pages/Auth/pembayaran/Invoice";
 import PengajarSiswa from "../pages/Auth/pengajar/PengajarSiswa";
 
 import Profile from "../pages/Auth/profil/Profile";
-//import ProfileDetail from "../pages/Auth/profil/ProfileDetail";
 import ProfileEdit from "../pages/Auth/profil/ProfileEdit";
 
 /* ==================== ADMIN ==================== */
@@ -72,6 +71,7 @@ import DataGuru from "../pages/Admin/settings/data-guru/DataGuru";
 const AppRouter = () => {
   return (
     <Routes>
+
       {/* ==================== GUEST ==================== */}
       <Route element={<GuestLayout />}>
         <Route index element={<Beranda />} />
@@ -117,7 +117,6 @@ const AppRouter = () => {
         <Route path="pembayaran/invoice" element={<Invoice />} />
         <Route path="pengajar" element={<PengajarSiswa />} />
         <Route path="profile" element={<Profile />} />
-      
         <Route path="profile-edit" element={<ProfileEdit />} />
       </Route>
 
@@ -153,6 +152,7 @@ const AppRouter = () => {
         <Route path="invoice" element={<InvoiceList />} />
         <Route path="invoice/detail" element={<InvoiceDetail />} />
       </Route>
+
     </Routes>
   );
 };

@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: kahfi_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: db_kahfi
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # PHPMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: kahfi_phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - backend_network
+
+  # Redis
+  redis:
+    image: redis:alpine
+    container_name: kahfi_redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Express Backend
+  backend:
+    build: .
+    container_name: kahfi_backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: ""
+      DB_NAME: db_kahfi
+      DB_DIALECT: mysql
+      DATABASE_URL: mysql://root:@mysql:3306/db_kahfi
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      USE_REDIS_ADAPTER: "true"
+      JWT_SECRET: K4HFI13DU_E4SYK3Y
+      JWT_EXPIRES_IN: 24h
+      FRONTEND_URL: https://kahfiedufe.web.app
+      BACKEND_URL: http://localhost:5000
+      SMTP_EMAIL: cakardi72@gmail.com
+      SMTP_PASSWORD: ptpmdyveyxqqoftw
+      CORS_CREDENTIALS: "true"
+      CORS_METHODS: GET,HEAD,PUT,PATCH,POST,DELETE
+      API_VERSION: v1
+      API_KEY: ueRs7TFkywICK0yI0koUuoVu1OynOmZ
+      SESSION_SECRET: your-secret-key
+      GOOGLE_CLIENT_ID: your_google_client_id
+      GOOGLE_CLIENT_SECRET: your_google_client_secret
+    ports:
+      - "5000:5000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend_network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  backend_network:
+    driver: bridge

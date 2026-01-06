@@ -2,39 +2,62 @@ import { Box, Container, Typography } from "@mui/material";
 
 export default function TentangSection() {
     return (
-        <div
-            style={{
-                width: '100%',
+        <Box
+            sx={{
+                width: "100%",
                 backgroundImage: `url('/img/bg-tentang.png')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                display: 'flex',
-                alignItems: 'center',
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                display: "flex",
+                alignItems: "center",
+                py: { xs: 6, md: 10 },
             }}
         >
-            <Container className="flex h-full items-start">
-                <img src="/img/ilustrasi/teacher.png" alt="" className="h-[573px]" />
-                <Box p={4}>
+            <Container
+                sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    alignItems: "center",
+                    gap: { xs: 4, md: 6 },
+                }}
+            >
+                <Box
+                    component="img"
+                    src="/img/ilustrasi/teacher.png"
+                    alt="Teacher"
+                    sx={{
+                        height: { xs: 280, sm: 360, md: 573 },
+                        width: "auto",
+                        maxWidth: "100%",
+                    }}
+                />
+
+                <Box sx={{ p: { xs: 0, md: 4 } }}>
                     <Typography
-                        variant="h4"
                         component="p"
-                        fontSize={48}
-                        fontWeight='bold'
+                        fontWeight="bold"
+                        sx={{
+                            fontSize: { xs: 28, sm: 36, md: 48 },
+                            textAlign: { xs: "center", md: "left" },
+                        }}
                     >
                         Tentang Kahfi Education
                     </Typography>
+
                     <Typography
-                        mt={2}
-                        variant="h4"
                         component="p"
-                        fontSize={24}
                         fontWeight={300}
+                        sx={{
+                            mt: 2,
+                            fontSize: { xs: 16, sm: 18, md: 24 },
+                            textAlign: { xs: "center", md: "left" },
+                        }}
                     >
                         Kahfi Education adalah layanan pembelajaran Al-Qur’an yang fleksibel dan personal untuk semua usia. Kami menghadirkan program mengaji dengan metode yang mudah, terstruktur, dan dibimbing oleh pengajar berpengalaman. Adapun program yang kami miliki!
                     </Typography>
                 </Box>
             </Container>
-        </div>
-    )
+        </Box>
+    );
 }

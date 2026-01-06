@@ -1,4 +1,11 @@
-import { Autocomplete, Chip, Paper, Stack, TextField, Typography } from "@mui/material";
+import {
+    Autocomplete,
+    Chip,
+    Paper,
+    Stack,
+    TextField,
+    Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 
 export default function FilterBlog({
@@ -10,48 +17,59 @@ export default function FilterBlog({
     const [searchTerm, setSearchTerm] = useState(initialSearch);
     const [selectedTags, setSelectedTags] = useState(initialSelectedTags);
 
-    // Debounce search + tag filter changes, then send up to parent
     useEffect(() => {
-        const delayDebounce = setTimeout(() => {
-            onSearch({ search: searchTerm, tags: selectedTags });
+        const debounce = setTimeout(() => {
+            onSearch({
+                search: searchTerm,
+                tags: selectedTags,
+            });
         }, 500);
 
-        return () => clearTimeout(delayDebounce);
+        return () => clearTimeout(debounce);
     }, [searchTerm, selectedTags, onSearch]);
 
     return (
-        <div style={{ position: "sticky", top: 80 }}>
-            <Paper elevation={3} className="p-6">
-                <Stack spacing={2}>
-                    <Typography variant="h6" gutterBottom>
-                        Filter Blog
-                    </Typography>
+        <Paper
+            elevation={2}
+            sx={{
+                position: { xs: "static", md: "sticky" },
+                top: 88,
+                p: { xs: 2, md: 3 },
+                borderRadius: 3,
+            }}
+        >
+            <Stack spacing={2}>
+                <Typography variant="h6" fontWeight={700}>
+                    Filter Blog
+                </Typography>
 
-                    <TextField
-                        fullWidth
-                        label="Cari blog..."
-                        variant="outlined"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="mb-4"
-                    />
+                <TextField
+                    fullWidth
+                    label="Cari blog"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
 
-                    <Autocomplete
-                        multiple
-                        options={availableTags}
-                        value={selectedTags}
-                        onChange={(_, value) => setSelectedTags(value)}
-                        renderTags={(value, getTagProps) =>
-                            value.map((option, index) => (
-                                <Chip label={option} {...getTagProps({ index })} key={option} />
-                            ))
-                        }
-                        renderInput={(params) => (
-                            <TextField {...params} variant="outlined" label="Filter berdasarkan tags" />
-                        )}
-                    />
-                </Stack>
-            </Paper>
-        </div>
+                <Autocomplete
+                    multiple
+                    options={availableTags}
+                    value={selectedTags}
+                    onChange={(_, value) => setSelectedTags(value)}
+                    renderTags={(value, getTagProps) =>
+                        value.map((option, index) => (
+                            <Chip
+                                label={option}
+                                size="small"
+                                {...getTagProps({ index })}
+                                key={option}
+                            />
+                        ))
+                    }
+                    renderInput={(params) => (
+                        <TextField {...params} label="Filter berdasarkan tag" />
+                    )}
+                />
+            </Stack>
+        </Paper>
     );
 }

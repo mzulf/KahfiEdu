@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from '../../libs/axiosInstance';
 import AuthLayout from '../../components/AuthLayout';
 import FormInput from '../../components/Ui/FormInput';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -26,7 +27,6 @@ const Register = () => {
     }));
   };
 
-  // ================= PASSWORD STRENGTH =================
   useEffect(() => {
     const p = form.password;
     if (!p) {
@@ -46,7 +46,6 @@ const Register = () => {
     else setPasswordStrength('strong');
   }, [form.password]);
 
-  // ================= VALIDATION =================
   const validate = () => {
     const newErrors = {};
 
@@ -79,7 +78,6 @@ const Register = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // ================= SUBMIT =================
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -112,12 +110,9 @@ const Register = () => {
         'Terjadi kesalahan pada server.';
 
       setErrors({ general: message });
-
-      console.error('REGISTER ERROR:', error.response || error);
     }
   };
 
-  // ================= PASSWORD BADGE =================
   const renderStrength = () => {
     if (!passwordStrength) return null;
 
@@ -144,86 +139,106 @@ const Register = () => {
 
   return (
     <AuthLayout greeting="Halo" sidebarText='Mari bersama "Mengaji Dari Hati"'>
-      <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
-
-      <form onSubmit={handleSubmit} className="space-y-4 w-full">
-        <div>
-          <label className="block mb-1 text-sm font-medium">Name *</label>
-          <FormInput name="name" value={form.name} onChange={handleChange} />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
-        </div>
-
-        <div>
-          <label className="block mb-1 text-sm font-medium">Email *</label>
-          <FormInput name="email" value={form.email} onChange={handleChange} />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-        </div>
-
-        <div>
-          <label className="block mb-1 text-sm font-medium">
-            Password * {renderStrength()}
-          </label>
-          <FormInput
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            showPasswordToggle
-          />
-          {errors.password && (
-            <p className="text-red-500 text-sm">{errors.password}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block mb-1 text-sm font-medium">
-            Confirm Password *
-          </label>
-          <FormInput
-            type="password"
-            name="confirmPassword"
-            value={form.confirmPassword}
-            onChange={handleChange}
-          />
-          {errors.confirmPassword && (
-            <p className="text-red-500 text-sm">
-              {errors.confirmPassword}
-            </p>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            name="agree"
-            checked={form.agree}
-            onChange={handleChange}
-          />
-          <label className="text-sm">
-            Saya menyetujui Syarat & Ketentuan
-          </label>
-        </div>
-        {errors.agree && <p className="text-red-500 text-sm">{errors.agree}</p>}
-
+      <div className="w-full max-w-md mx-auto px-2 sm:px-0 relative">
+        {/* BUTTON KEMBALI */}
         <button
-          type="submit"
-          className="w-full py-3 bg-kahf-green text-white rounded-lg hover:bg-green-700"
+          type="button"
+          onClick={() => navigate('/')}
+          className="absolute -top-2 -left-2 text-kahf-green hover:opacity-80"
         >
-          Daftar
+          <ArrowBackIcon />
         </button>
-      </form>
 
-      {errors.general && (
-        <p className="mt-4 text-red-500 text-sm text-center">
-          {errors.general}
-        </p>
-      )}
+        <h2 className="text-xl sm:text-2xl font-bold mb-6 text-center">
+          Register
+        </h2>
 
-      <div className="mt-4 text-sm text-center">
-        Sudah punya akun?{' '}
-        <Link to="/login" className="text-kahf-green font-medium">
-          Masuk
-        </Link>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block mb-1 text-sm font-medium">Name *</label>
+            <FormInput name="name" value={form.name} onChange={handleChange} />
+            {errors.name && (
+              <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block mb-1 text-sm font-medium">Email *</label>
+            <FormInput name="email" value={form.email} onChange={handleChange} />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block mb-1 text-sm font-medium">
+              Password * {renderStrength()}
+            </label>
+            <FormInput
+              type="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              showPasswordToggle
+            />
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block mb-1 text-sm font-medium">
+              Confirm Password *
+            </label>
+            <FormInput
+              type="password"
+              name="confirmPassword"
+              value={form.confirmPassword}
+              onChange={handleChange}
+            />
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.confirmPassword}
+              </p>
+            )}
+          </div>
+
+          <div className="flex items-start gap-2">
+            <input
+              type="checkbox"
+              name="agree"
+              checked={form.agree}
+              onChange={handleChange}
+              className="mt-1"
+            />
+            <label className="text-sm leading-relaxed">
+              Saya menyetujui Syarat & Ketentuan
+            </label>
+          </div>
+          {errors.agree && (
+            <p className="text-red-500 text-xs">{errors.agree}</p>
+          )}
+
+          <button
+            type="submit"
+            className="w-full py-3 bg-kahf-green text-white rounded-lg font-medium transition hover:bg-green-700"
+          >
+            Daftar
+          </button>
+        </form>
+
+        {errors.general && (
+          <p className="mt-4 text-red-500 text-sm text-center">
+            {errors.general}
+          </p>
+        )}
+
+        <div className="mt-6 text-sm text-center">
+          Sudah punya akun?{' '}
+          <Link to="/login" className="text-kahf-green font-medium">
+            Masuk
+          </Link>
+        </div>
       </div>
     </AuthLayout>
   );

@@ -13,18 +13,16 @@ module.exports = {
       },
       userId: {
         type: Sequelize.STRING(36),
-        defaultValue: Sequelize.UUIDV4,
-        allowNull: false,
-        references: {
-          model: 'Users',
-          key: 'id'
-        },
-        onDelete: 'CASCADE',
-        allowNull: false
+        allowNull: true,  // ← Diubah jadi true (nullable)
+        // Foreign key dihapus - tidak ada references
       },
       code: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      expiredAt: {  // ← TAMBAHAN BARU
+        type: Sequelize.DATE,
+        allowNull: true,
       },
       isVerified: {
         type: Sequelize.BOOLEAN,
@@ -47,12 +45,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
     await queryInterface.dropTable('otps');
   }
 };
